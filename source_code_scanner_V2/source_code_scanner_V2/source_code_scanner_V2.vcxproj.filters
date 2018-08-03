@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="头文件\msword_h">
+      <UniqueIdentifier>{57bf69f7-3d2b-4036-8554-e0475f3b84be}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+    <None Include="res\source_code_scanner_V2.rc2">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\source_code_scanner_V2.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\..\..\..\..\..\..\doc\colorful.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\colorful.ico">
+      <Filter>资源文件</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="source_code_scanner_V2.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="source_code_scanner_V2Dlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="_Application.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="_Document.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="_Font.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="_ParagraphFormat.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Bookmark.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Bookmarks.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Border.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Borders.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Cell.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Documents.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Field.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Fields.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="HeaderFooter.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Hyperlink.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Hyperlinks.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="InlineShape.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="InlineShapes.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="List.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="PageSetup.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Pane.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Range.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Selection.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Shading.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Table.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Tables.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="View.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Window.h">
+      <Filter>头文件\msword_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Word_Api.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src_code_scanner.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source_code_scanner_V2.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="source_code_scanner_V2Dlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Word_Api.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src_code_scanner.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="source_code_scanner_V2.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
