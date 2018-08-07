@@ -105,6 +105,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="..\..\..\..\..\..\..\doc\colorful.ico" />
+    <None Include="ReadMe.md" />
     <None Include="ReadMe.txt" />
     <None Include="res\colorful.ico" />
     <None Include="res\dora.bmp" />

@@ -75,7 +75,9 @@ BOOL SrcCodeScannerApp::InitInstance()
 
 	SrcCodeScannerDlg dlg;
 	m_pMainWnd = &dlg;
+	//AfxMessageBox(_T("DoModal..."));
 	INT_PTR nResponse = dlg.DoModal();
+	//AfxMessageBox(_T("DoModal..."));
 	if (nResponse == IDOK)
 	{
 		// TODO: 在此放置处理何时用

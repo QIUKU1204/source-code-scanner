@@ -39,6 +39,6 @@ public:
 	afx_msg void OnBnClickedButtonSelectFile();
 	afx_msg void OnBnClickedButtonSelectFolder();
 	afx_msg void OnDropFiles(HDROP hDropInfo);
-	void OnTimer(UINT_PTR nIDEvent); 
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	CEdit m_edit_filepath;
 };

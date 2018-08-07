@@ -34,6 +34,7 @@
     <None Include="res\dora.bmp">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="ReadMe.md" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source_code_scanner_V2.h">

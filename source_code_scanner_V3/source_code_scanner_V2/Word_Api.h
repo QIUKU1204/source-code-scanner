@@ -18,7 +18,7 @@ public:
 	// 创建一个word程序和word文档
 	BOOL Create();
 	// 关闭当前Word程序
-	void AppClose();
+	void AppClose(HWND hWnd);
 
 
 	// 打开一个word文档

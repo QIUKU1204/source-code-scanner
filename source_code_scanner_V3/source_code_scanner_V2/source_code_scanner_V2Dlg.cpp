@@ -75,6 +75,7 @@ BEGIN_MESSAGE_MAP(SrcCodeScannerDlg, CDialogEx)
 	ON_EN_CHANGE(IDC_EDIT_TOP, &SrcCodeScannerDlg::OnEnChangeEditTop)
 	ON_BN_CLICKED(IDC_BUTTON_SELECT_FILE, &SrcCodeScannerDlg::OnBnClickedButtonSelectFile)
 	ON_BN_CLICKED(IDC_BUTTON_SELECT_FOLDER, &SrcCodeScannerDlg::OnBnClickedButtonSelectFolder)
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -162,22 +163,55 @@ BOOL SrcCodeScannerDlg::OnInitDialog() // 初始化对话框
 
 	// TODO: 在此添加额外的初始化代码
 
-	SetTimer(1, 2000, NULL); // 设置定时器
-
+	SetTimer(1, 1000, NULL); // 设置定时器
+	
 	wordOpt.CreateApp(); // 在打开程序窗口的同时，启动Word程序
-
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
-void SrcCodeScannerDlg::OnTimer(UINT_PTR nIDEvent){
-	// 目前无法自动关闭消息对话框
-}
-
 /////////////////用户自主添加控件的消息处理函数///////////////////
+
+void SrcCodeScannerDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	if (nIDEvent == 1)
+	{
+		CWnd * hWnd = FindWindow(NULL,_T("代码扫描器"));
+		if (hWnd)
+		{
+			Sleep(1000); // 先阻塞1S再关闭
+			hWnd->PostMessageW(WM_CLOSE,NULL,NULL);
+		}
+	}
+	//EndDialog(IDOK);
+	CDialogEx::OnTimer(nIDEvent);
+}
 
 vector<string> path_vc; // 文件&文件夹路径变量设为全局
 void SrcCodeScannerDlg::OnBnClickedButtonWord()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	
+	SrcCodeScanner scanner; // 定义一个扫描器对象，以调用封装好的函数
+
+	HWND hWnd = AfxGetMainWnd()->m_hWnd; // 获取当前窗口的句柄
+
+	if (!scanner.CheckPathVector(path_vc,hWnd)) // 检查容器是否为空
+	{
+		return; // 若为空，则不再执行扫描操作
+	}
+	
+	// 根据传入的头文件路径，在其目录下生成相应的Word文档
+	MessageBox(_T("扫描开始！"),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
+	for (unsigned int i = 0;i < path_vc.size();i++)
+	{
+		scanner.GenerateWordDoc(path_vc[i],wordOpt);
+	}
+	MessageBox(_T("扫描完成！"),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
+}
+
+void SrcCodeScannerDlg::OnBnClickedButtonMd()
 {
 	// TODO: 在此添加控件通知处理程序代码
 
@@ -189,41 +223,14 @@ void SrcCodeScannerDlg::OnBnClickedButtonWord()
 	{
 		return; // 若为空，则不再执行扫描操作
 	}
-	
-	MessageBox(_T("扫描开始！"),_T("提示信息"),MB_OK|MB_ICONINFORMATION);
-	// 根据传入的头文件路径，在其目录下生成相应的Word文档
-	//wordOpt.CreateApp(); // OnInitDialog()
-	for (unsigned int i = 0;i < path_vc.size();i++)
-	{
-		scanner.GenerateWordDoc(path_vc[i],wordOpt);
-	}
-	MessageBox(_T("扫描完成！"),_T("提示信息"),MB_OK|MB_ICONINFORMATION);
-	//wordOpt.AppClose(); // OnBnClickedOk(); OnBnClickedCancel()
-}
 
-void SrcCodeScannerDlg::OnBnClickedButtonMd()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	MessageBox(_T("MD文件功能待完善...敬请期待！"),_T("提示信息"),MB_OK|MB_ICONINFORMATION);
-
-	// TODO: 在此添加控件通知处理程序代码
-	/*SrcCodeScanner scanner; // 定义一个扫描器对象，以调用封装好的函数
-
-	HWND hWnd = AfxGetMainWnd()->m_hWnd; // 获取当前窗口的句柄
-
-	if (!scanner.CheckPathVector(path_vc,hWnd)) // 检查容器是否为空
-	{
-		return; // 若为空，则不再执行扫描操作
-	}
-
-	MessageBox(_T("扫描开始！"),_T("提示信息"),MB_OK|MB_ICONINFORMATION);
+	MessageBox(_T("扫描开始！"),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
 	// 根据传入的头文件路径，在其目录下生成相应的Word文档
 	for (unsigned int i = 0;i < path_vc.size();i++)
 	{
 		scanner.GenerateMarkdownFile(path_vc[i]);
 	}
-	MessageBox(_T("扫描完成！"),_T("提示信息"),MB_OK|MB_ICONINFORMATION);*/
-	
+	MessageBox(_T("扫描完成！"),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
 }
 
 void SrcCodeScannerDlg::OnBnClickedButtonSelectFile()
@@ -262,10 +269,10 @@ void SrcCodeScannerDlg::OnBnClickedButtonSelectFolder()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	// wchar_t <=> WCHAR <=> TCHAR
-	WCHAR *wchar_folderpath = new WCHAR[MAX_PATH];
+	WCHAR * wchar_folderpath = new WCHAR[MAX_PATH];
 	CString cstr_folderpath;
 	
-	// 设置浏览信息对象
+	// 定义、设置浏览信息对象
 	BROWSEINFO browse_info;
 	::ZeroMemory(&browse_info,sizeof(BROWSEINFO));
 	browse_info.pidlRoot = 0;                                 // 要显示的文件夹对话框的根(Root)
@@ -307,7 +314,7 @@ void SrcCodeScannerDlg::OnDropFiles(HDROP hDropInfo)
 	path_vc.clear();
 
 	// wchar_t <=> WCHAR <=> TCHAR
-	WCHAR *wchar_filepath = new WCHAR[MAX_PATH];
+	WCHAR * wchar_filepath = new WCHAR[MAX_PATH];
 	CString multi_filepath;
 
 	// DragQueryFile(拖拽文件信息，查询文件的索引号，文件路径缓冲区，缓冲区大小)
@@ -319,11 +326,9 @@ void SrcCodeScannerDlg::OnDropFiles(HDROP hDropInfo)
 	{
 		DragQueryFile(hDropInfo,index,wchar_filepath,MAX_PATH);
 
-		// 将WCHAR转换为string后放入容器中
-		string str_tmp;
-		SrcCodeScanner scanner;
-		scanner.WCHARToString(wchar_filepath,str_tmp);
-		path_vc.push_back(str_tmp);
+		// 将WCHAR*转换为string后放入容器中
+		USES_CONVERSION;
+		path_vc.push_back(W2A(wchar_filepath)); // WCHAR* -> char* -> string
 
 		// 获取多个文件的路径
 		multi_filepath = multi_filepath + wchar_filepath + "; ";
@@ -339,14 +344,16 @@ void SrcCodeScannerDlg::OnDropFiles(HDROP hDropInfo)
 void SrcCodeScannerDlg::OnBnClickedOk()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	wordOpt.AppClose(); // 在关闭程序窗口的同时，关闭Word程序
+	HWND hWnd = AfxGetMainWnd()->m_hWnd; // 获取当前窗口的句柄
+	wordOpt.AppClose(hWnd); // 在关闭程序窗口的同时，关闭Word程序
 	CDialogEx::OnOK();
 }
 
 void SrcCodeScannerDlg::OnBnClickedCancel()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	wordOpt.AppClose(); // 在关闭程序窗口的同时，关闭Word程序
+	HWND hWnd = AfxGetMainWnd()->m_hWnd; // 获取当前窗口的句柄
+	wordOpt.AppClose(hWnd); // 在关闭程序窗口的同时，关闭Word程序
 	CDialogEx::OnCancel();
 }
 
@@ -360,7 +367,7 @@ void SrcCodeScannerDlg::OnEnChangeEditTop()
 	// TODO:  在此添加控件通知处理程序代码
 }
 
-// 向编辑框中每输入一个字符，Update即将响应一次
+// 向编辑框中每输入一个字符，Update即响应一次
 /*void SrcCodeScannerDlg::OnEnUpdateEditTop()
 {
 	// TODO:  如果该控件是 RICHEDIT 控件，它将不
@@ -377,6 +384,8 @@ void SrcCodeScannerDlg::OnEnChangeEditTop()
 	//UpdateData(TRUE);
 	m_edit_filepath.GetWindowTextW(cstr_edit);
 	USES_CONVERSION;
-	//string str_tmp(W2A(cstr_edit)); // CStringW -> CSringA -> string
 	filenames_vc.push_back(W2A(cstr_edit));
 }*/
+
+
+

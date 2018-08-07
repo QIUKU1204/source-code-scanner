@@ -81,7 +81,8 @@ BOOL SccWordApi::CreateApp(){
 	else
 	{
 		//m_app.put_Visible(TRUE);
-		AfxMessageBox(_T("Word程序启动成功！"),MB_OK|MB_ICONINFORMATION);
+		//MessageBox(hWnd,_T("Word程序正在启动..."),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
+		AfxMessageBox(_T("Word启动成功，按确认键继续"),MB_OK|MB_ICONINFORMATION);
 		return TRUE;
 	}
 }
@@ -498,7 +499,7 @@ void SccWordApi::SetHeaderFooter(CString HeaderText /* =  */,CString FooterText 
 
 
 
-void SccWordApi::AppClose(){
+void SccWordApi::AppClose(HWND hWnd){
 	COleVariant vOpt((long)DISP_E_PARAMNOTFOUND,VT_ERROR);
 	if (!m_app.m_lpDispatch)
 	{
@@ -509,7 +510,7 @@ void SccWordApi::AppClose(){
 		m_app.Quit(vOpt,vOpt,vOpt);
 
 		// 释放资源放在析构函数中
-
-		AfxMessageBox(_T("Word程序成功关闭！"),MB_OK|MB_ICONINFORMATION);
+		MessageBox(hWnd,_T("Word程序正在关闭..."),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
+		//AfxMessageBox(_T("Word程序成功关闭！"),MB_OK|MB_ICONINFORMATION);
 	}
 }

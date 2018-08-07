@@ -15,6 +15,7 @@ public:
 	string GBKToUTF8(const char* str_GBK);
 	string UTF8ToGBK(const char* str_UTF8);
 	void WCHARToString(WCHAR *wchar,string &str);
+	void ReplaceCharacters(string &str,string old_value = "\r\n",string new_value = "<br>");
 	void GetFilesFromFolder(string folder_path,vector<string>& files_vc,long& file_count,string file_type = "\\*");
 	bool ReadFileData(string filename,string &data);
 	bool RegexSearch(string data,regex pattern,vector<string> &vc,int position);

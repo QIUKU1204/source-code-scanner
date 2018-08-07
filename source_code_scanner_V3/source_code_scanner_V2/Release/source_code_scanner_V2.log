@@ -1,33 +1,30 @@
-﻿生成启动时间为 2018/8/6 11:20:12。
-     1>项目“D:\我的文档\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\source_code_scanner_V2\source_code_scanner_V2.vcxproj”在节点 2 上(build 个目标)。
+﻿生成启动时间为 2018/8/7 16:20:33。
+     1>项目“C:\Users\QIUKU1204\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\source_code_scanner_V2\source_code_scanner_V2.vcxproj”在节点 2 上(build 个目标)。
      1>InitializeBuildStatus:
          正在创建“Release\source_code_scanner_V2.unsuccessfulbuild”，因为已指定“AlwaysCreate”。
        ClCompile:
          所有输出均为最新。
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Program Files\PCL 1.8.0\3rdParty\Boost\include\boost-1_61" /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D _WINDOWS /D NDEBUG /D _SCL_SECURE_NO_WARNINGS /D _CRT_SECURE_NO_WARNINGS /D _UNICODE /D UNICODE /D _AFXDLL /D _AFXEXT /Gm- /EHsc /MDd /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Release\source_code_scanner_V2.pch" /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt source_code_scanner_V2Dlg.cpp src_code_scanner.cpp
-         source_code_scanner_V2Dlg.cpp
-         src_code_scanner.cpp
-       ResourceCompile:
          所有输出均为最新。
+       ResourceCompile:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /D NDEBUG /D _UNICODE /D UNICODE /D _AFXDLL /l"0x0804" /IRelease\ /nologo /fo"Release\source_code_scanner_V2.res" source_code_scanner_V2.rc 
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\我的文档\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\Release\source_code_scanner_V2.exe" /INCREMENTAL:NO /NOLOGO /MANIFEST /ManifestFile:"Release\source_code_scanner_V2.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"D:\我的文档\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\Release\source_code_scanner_V2.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /ENTRY:"wWinMainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\我的文档\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\Release\source_code_scanner_V2.lib" /MACHINE:X86 Release\source_code_scanner_V2.res
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\QIUKU1204\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\Release\source_code_scanner_V2.exe" /INCREMENTAL:NO /NOLOGO /MANIFEST /ManifestFile:"Release\source_code_scanner_V2.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\QIUKU1204\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\Release\source_code_scanner_V2.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /ENTRY:"wWinMainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\QIUKU1204\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\Release\source_code_scanner_V2.lib" /MACHINE:X86 Release\source_code_scanner_V2.res
          Release\source_code_scanner_V2.obj
          Release\source_code_scanner_V2Dlg.obj
          Release\src_code_scanner.obj
          Release\stdafx.obj
          Release\Word_Api.obj
-            正在创建库 D:\我的文档\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\Release\source_code_scanner_V2.lib 和对象 D:\我的文档\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\Release\source_code_scanner_V2.exp
+            正在创建库 C:\Users\QIUKU1204\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\Release\source_code_scanner_V2.lib 和对象 C:\Users\QIUKU1204\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\Release\source_code_scanner_V2.exp
          正在生成代码
-     1>d:\我的文档\documents\visual studio 2010\projects\source_code_scanner_v3\source_code_scanner_v2\src_code_scanner.cpp(256): warning C4715: “SrcCodeScanner::CheckPathVector”: 不是所有的控件路径都返回值
          已完成代码的生成
-         source_code_scanner_V2.vcxproj -> D:\我的文档\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\Release\source_code_scanner_V2.exe
+         source_code_scanner_V2.vcxproj -> C:\Users\QIUKU1204\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\Release\source_code_scanner_V2.exe
        Manifest:
-         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"D:\我的文档\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\Release\source_code_scanner_V2.exe;#1" /manifest Release\source_code_scanner_V2.exe.intermediate.manifest "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\Include\Manifest\dpiaware.manifest"
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\Users\QIUKU1204\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\Release\source_code_scanner_V2.exe;#1" /manifest Release\source_code_scanner_V2.exe.intermediate.manifest "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\Include\Manifest\dpiaware.manifest"
        FinalizeBuildStatus:
          正在删除文件“Release\source_code_scanner_V2.unsuccessfulbuild”。
          正在对“Release\source_code_scanner_V2.lastbuildstate”执行 Touch 任务。
-     1>已完成生成项目“D:\我的文档\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\source_code_scanner_V2\source_code_scanner_V2.vcxproj”(build 个目标)的操作。
+     1>已完成生成项目“C:\Users\QIUKU1204\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\source_code_scanner_V2\source_code_scanner_V2.vcxproj”(build 个目标)的操作。
 
 生成成功。
 
-已用时间 00:00:04.50
+已用时间 00:00:02.73
