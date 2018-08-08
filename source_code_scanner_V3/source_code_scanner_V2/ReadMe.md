@@ -35,6 +35,6 @@
 - AfxMessageBox((CString)str.c_str());
 - string.c_str()可以赋值给CString，CString可以赋值给LPCTSTR，但是string.c_str()不可以直接赋值给LPCTSTR；
 
-- 关于正则表达式的两点:
+- 关于正则表达式的两个要点:
   - 匹配精度越高，匹配容错率越低；
   - 匹配容错率越高，匹配精度越低；

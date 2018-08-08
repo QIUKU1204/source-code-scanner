@@ -180,7 +180,7 @@ void SrcCodeScannerDlg::OnTimer(UINT_PTR nIDEvent)
 		CWnd * hWnd = FindWindow(NULL,_T("代码扫描器"));
 		if (hWnd)
 		{
-			Sleep(1000); // 先阻塞1S再关闭
+			Sleep(1500); // 先阻塞1S再关闭
 			hWnd->PostMessageW(WM_CLOSE,NULL,NULL);
 		}
 	}
@@ -225,7 +225,7 @@ void SrcCodeScannerDlg::OnBnClickedButtonMd()
 	}
 
 	MessageBox(_T("扫描开始！"),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
-	// 根据传入的头文件路径，在其目录下生成相应的Word文档
+	// 根据传入的头文件路径，在其目录下生成相应的Markdown文档
 	for (unsigned int i = 0;i < path_vc.size();i++)
 	{
 		scanner.GenerateMarkdownFile(path_vc[i]);
