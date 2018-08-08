@@ -76,6 +76,7 @@ BEGIN_MESSAGE_MAP(SrcCodeScannerDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_SELECT_FILE, &SrcCodeScannerDlg::OnBnClickedButtonSelectFile)
 	ON_BN_CLICKED(IDC_BUTTON_SELECT_FOLDER, &SrcCodeScannerDlg::OnBnClickedButtonSelectFolder)
 	ON_WM_TIMER()
+	ON_STN_CLICKED(IDC_STATIC_PICTURE7, &SrcCodeScannerDlg::OnStnClickedStaticPicture7)
 END_MESSAGE_MAP()
 
 
@@ -201,10 +202,11 @@ void SrcCodeScannerDlg::OnBnClickedButtonWord()
 	{
 		return; // 若为空，则不再执行扫描操作
 	}
+	//AfxMessageBox((CString)to_string((long long)path_vc.size()).c_str());
 	
 	// 根据传入的头文件路径，在其目录下生成相应的Word文档
 	MessageBox(_T("扫描开始！"),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
-	for (unsigned int i = 0;i < path_vc.size();i++)
+	for (size_t i = 0;i < path_vc.size();i++)
 	{
 		scanner.GenerateWordDoc(path_vc[i],wordOpt);
 	}
@@ -226,7 +228,7 @@ void SrcCodeScannerDlg::OnBnClickedButtonMd()
 
 	MessageBox(_T("扫描开始！"),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
 	// 根据传入的头文件路径，在其目录下生成相应的Markdown文档
-	for (unsigned int i = 0;i < path_vc.size();i++)
+	for (size_t i = 0;i < path_vc.size();i++)
 	{
 		scanner.GenerateMarkdownFile(path_vc[i]);
 	}

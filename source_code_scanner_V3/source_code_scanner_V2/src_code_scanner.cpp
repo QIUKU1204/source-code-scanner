@@ -143,24 +143,22 @@ bool SrcCodeScanner::ReadFileData(string filename,string &data){
 	return true;
 }
 
-bool SrcCodeScanner::RegexSearch(string data,regex pattern,vector<string> &vc,int position){
+int SrcCodeScanner::RegexSearch(string data,regex pattern,vector<string> &vc,int position){
 	// 使用类 regex_iterator 进行多次匹配，返回所有符合的匹配结果
 	auto words_begin = sregex_iterator(data.begin(),data.end(),pattern);
 	auto words_end = sregex_iterator();
 
-	int size = 0;
 	for (sregex_iterator it = words_begin; it != words_end; ++it)
 	{
 		vc.push_back(it->format("$" + to_string((long long)position)));
-		++size;
-	}
-	// 当 size = 0 时的处理
-	if (size == 0)
-	{
-		return false;
 	}
 
-	return true;
+	if (vc.size() == 0) // 匹配失败返回1
+	{
+		return 1;
+	}
+
+	return 0; // 匹配成功返回0
 }
 
 bool SrcCodeScanner::GetWantedData(string filename,string &complete_class,vector<string> &class_name_vc,vector<string> &class_desc_vc,vector<string> &name_vc, 
@@ -172,38 +170,38 @@ bool SrcCodeScanner::GetWantedData(string filename,string &complete_class,vector
 		return false; // 文件读取失败
 	}
 
-	// 构建正则表达式
-    // 优化方案:提供一个接口供用户输入自定义的正则表达式
-	regex class_name_pattern("Class ([A-Za-z: ]+) : Begin.");
-	regex class_desc_pattern("类说明：(.+)");  // :与：
-	regex name_pattern("名称:([A-Za-z~ ]+)");
-	regex form_pattern("(接口形式:.+)");
-	regex desc_pattern("(功能描述:.+)");
-	regex param_pattern("// 参数说明:((.|\\r|\\n)+?)// 返回值");
-	regex return_pattern("// 返回值:((.|\\r|\\n)+?)// 示例");
-	regex example_pattern("// 示例:((.|\\r|\\n)+?)//");
+	// 构建正则表达式:兼顾匹配精度与匹配容错率
+    // 优化方案:提供接口供用户输入自定义的正则表达式
+	regex class_name_pattern("Class[ ]*([A-Za-z]+)[ ]*:[ ]*Begin\\.*"); 
+	regex class_desc_pattern("类说明:*：*(.+)");      // 此处不能使用[:：]{1}
+	regex name_pattern("名称[:：]{1}[ ]*([A-Za-z~ ]+)"); // 此处不能使用:*：*
+	regex form_pattern("(接口形式[:：]{1}[ ]*.+)");
+	regex desc_pattern("(功能描述[:：]{1}[ ]*.+)");
+	regex param_pattern("//[ ]*参数说明[:：][ ]*((.|\\r|\\n)+?)//[ ]*返回值");
+	regex return_pattern("//[ ]*返回值[:：][ ]*((.|\\r|\\n)+?)//[ ]*示例"); // 需要优化
+	regex example_pattern("//[ ]*示例[:：][ ]*((.|\\r|\\n)+?)//");          // 需要优化
 
-	// 执行匹配
-	bool flag = RegexSearch(filedata,class_name_pattern,class_name_vc,1);
-	flag = RegexSearch(filedata,class_desc_pattern,class_desc_vc,1);
-	flag = RegexSearch(filedata,name_pattern,name_vc,1);
-	flag = RegexSearch(filedata,form_pattern,form_vc,1);
-	flag = RegexSearch(filedata,desc_pattern,desc_vc,1);
-	flag = RegexSearch(filedata,param_pattern,param_vc,1);
-	flag = RegexSearch(filedata,return_pattern,return_vc,1);
-	flag = RegexSearch(filedata,example_pattern,example_vc,1);
-	if (!flag)
+	// 执行匹配（成功返回0，失败返回1）
+	int flag = RegexSearch(filedata,class_name_pattern,class_name_vc,1);
+	flag += RegexSearch(filedata,class_desc_pattern,class_desc_vc,1);
+	flag += RegexSearch(filedata,name_pattern,name_vc,1);
+	flag += RegexSearch(filedata,form_pattern,form_vc,1);
+	flag += RegexSearch(filedata,desc_pattern,desc_vc,1);
+	flag += RegexSearch(filedata,param_pattern,param_vc,1);
+	flag += RegexSearch(filedata,return_pattern,return_vc,1);
+	flag += RegexSearch(filedata,example_pattern,example_vc,1);
+	if (flag != 0)
 	{
-		// 弹窗提示具体是哪个文件匹配失败，导致没有生成Word文档
+		// 弹窗提示具体是哪个文件匹配失败
 		string warning = filename + "匹配失败，请查看其注释格式！";
 		//MessageBox(NULL,(CString)warning.c_str(),_T("提示信息"),MB_OK|MB_ICONINFORMATION); // 需传入窗口句柄
 		AfxMessageBox((CString)warning.c_str(),MB_OK|MB_ICONINFORMATION);
-		return false; // 文件匹配失败
+		return false;
 	}
 
 	// 对匹配结果进行处理
 	complete_class = "1.1.1 " + class_desc_vc[0] + class_name_vc[0];
-	for (unsigned int i = 0;i < name_vc.size();i++)
+	for (size_t i = 0;i < name_vc.size();i++)
 	{
 		// 处理接口名称
 		string str_number = std::to_string((long long)(i + 1));
@@ -242,7 +240,7 @@ bool SrcCodeScanner::CheckPathVector(vector<string> &path_vc,HWND hWnd){ // 检查
 		return false;
 	}
 	// 检查vc容器中的元素，若为文件夹，则将该文件夹下的所有头文件放入容器中
-	for (unsigned int i = 0;i < path_vc.size();i++)
+	for (size_t i = 0;i < path_vc.size();i++)
 	{
 		if (path_vc[i].find('.') == string::npos)
 		{
@@ -266,7 +264,7 @@ bool SrcCodeScanner::CheckPathVector(vector<string> &path_vc,HWND hWnd){ // 检查
 }
 
 void SrcCodeScanner::GenerateWordDoc(string filename,SccWordApi &wordOpt){
-	//////////////////获取生成Word文档所需的处理好的数据(线程1)//////////////////////
+	//////////////////获取生成Word文档所需的处理好的数据//////////////////////
 	// 定义存放正则匹配结果的容器
 	vector<string> class_name_vc;
 	vector<string> class_desc_vc;
@@ -285,7 +283,7 @@ void SrcCodeScanner::GenerateWordDoc(string filename,SccWordApi &wordOpt){
 	}
 	
 
-	////////////////操作Word接口生成GBK编码的Word文档(线程2)//////////////////
+	////////////////操作Word接口生成GBK编码的Word文档//////////////////
 	wordOpt.CreateDocument();
 	wordOpt.SetPageSetup(54,54,72,72);
 	wordOpt.SetParagraphFormat(3);
@@ -297,7 +295,7 @@ void SrcCodeScanner::GenerateWordDoc(string filename,SccWordApi &wordOpt){
 	wordOpt.NewLine();
 
 	// 循环写入每个接口函数的注释信息
-	for (unsigned int i = 0;i < name_vc.size();i++)
+	for (size_t i = 0;i < name_vc.size();i++)
 	{
 		// 接口函数名
 		wordOpt.SetFont(_T("Times New Roman"),12,0,1); // 小四加粗
@@ -328,7 +326,7 @@ void SrcCodeScanner::GenerateWordDoc(string filename,SccWordApi &wordOpt){
 	regex filename_pattern("(.+?)\\.h");
 	vector<string> filename_vc;
 	string saved_doc_name;
-	if(RegexSearch(filename,filename_pattern,filename_vc,1)){
+	if(RegexSearch(filename,filename_pattern,filename_vc,1) == 0){
 		saved_doc_name = filename_vc[0] + ".doc";
 	}
 	wordOpt.SaveAs(saved_doc_name.c_str());           
@@ -337,7 +335,7 @@ void SrcCodeScanner::GenerateWordDoc(string filename,SccWordApi &wordOpt){
 }
 
 void SrcCodeScanner::GenerateMarkdownFile(string filename){
-	//////////////////获取生成Markdown文档所需的处理好的数据(线程1)//////////////////////
+	//////////////////获取生成Markdown文档所需的处理好的数据//////////////////////
 	// 定义存放正则匹配结果的容器
 	vector<string> class_name_vc;
 	vector<string> class_desc_vc;
@@ -357,9 +355,9 @@ void SrcCodeScanner::GenerateMarkdownFile(string filename){
 	// 对数据进行Markdown语法格式的处理
 	string header = "###### GeoBeans平台二次开发库架构及主要接口说明文档";
 	string footer = "###### <div style=\"text-align:right\">北京中遥地网信息技术有限公司</div>";
-	string format_line = "| -------- |";
+	string format_line = "| :-------- |";
 	complete_class = "### **" + complete_class + "**";
-	for (unsigned int i = 0;i < name_vc.size();i++)
+	for (size_t i = 0;i < name_vc.size();i++)
 	{
 		// 处理接口名称
 		name_vc[i] = "#### **" + name_vc[i] + "**";
@@ -387,12 +385,12 @@ void SrcCodeScanner::GenerateMarkdownFile(string filename){
 	}
 
 	
-	//////////////////写入数据，生成Markdown文档(线程2)//////////////////
+	//////////////////写入数据，生成Markdown文档//////////////////
 	// 创建并打开Markdown文件
 	regex filename_pattern("(.+?)\\.h");
 	vector<string> filename_vc;
 	string saved_md_name;
-	if(RegexSearch(filename,filename_pattern,filename_vc,1)){
+	if(RegexSearch(filename,filename_pattern,filename_vc,1) == 0){
 		saved_md_name = filename_vc[0] + ".md";
 		//AfxMessageBox((CString)saved_md_name.c_str());
 	}
@@ -401,7 +399,7 @@ void SrcCodeScanner::GenerateMarkdownFile(string filename){
 	// 按格式写入数据
 	outfile << header << endl;
 	outfile << complete_class << endl;
-	for (unsigned int i = 0;i < name_vc.size();i++)
+	for (size_t i = 0;i < name_vc.size();i++)
 	{
 		outfile << name_vc[i] << endl;
 		outfile << form_vc[i] << endl;

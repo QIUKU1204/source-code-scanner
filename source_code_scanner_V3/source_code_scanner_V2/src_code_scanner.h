@@ -18,7 +18,7 @@ public:
 	void ReplaceCharacters(string &str,string old_value = "\r\n",string new_value = "<br>");
 	void GetFilesFromFolder(string folder_path,vector<string>& files_vc,long& file_count,string file_type = "\\*");
 	bool ReadFileData(string filename,string &data);
-	bool RegexSearch(string data,regex pattern,vector<string> &vc,int position);
+	int RegexSearch(string data,regex pattern,vector<string> &vc,int position);
 	bool GetWantedData(string filename,string &complete_class,vector<string> &class_name_vc,vector<string> &class_desc_vc,vector<string> &name_vc,
 		vector<string> &form_vc,vector<string> &desc_vc,vector<string> &param_vc,vector<string> &return_vc,vector<string> &example_vc);
 	bool CheckPathVector(vector<string> &path_vc,HWND hWnd);
