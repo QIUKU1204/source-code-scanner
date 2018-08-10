@@ -145,7 +145,7 @@ public:
 	*   @param[in] HeaderText   页眉内容
 	*   @param[in] FooterText   页脚内容
 	**/
-	void SetHeaderFooter(CString HeaderText = "GeoBeans平台二次开发库架构及主要接口说明文档",CString FooterText = "北京中遥地网信息技术有限公司");
+	void SetHeaderFooter(CString encoding,CString HeaderText = "GeoBeans平台二次开发库架构及主要接口说明文档",CString FooterText = "北京中遥地网信息技术有限公司");
 
 	/**
 	*   设置自动编号

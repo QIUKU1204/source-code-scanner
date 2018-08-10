@@ -11,6 +11,7 @@
 #include <vector>
 #include <Windows.h>
 #include <io.h>
+#include <stdlib.h>
 using namespace std;
 
 
@@ -107,12 +108,24 @@ void SrcCodeScanner::GetFilesFromFolder(string folder_path,vector<string>& files
 			}  
 			else  // 如果是file_type类型的文件,则加入容器 
 			{  
-				if (strstr(fileinfo.name, file_type.c_str()) != NULL)
+				// 从文件名中提取文件后缀(此方法不能用于从文件路径中提取后缀名)
+				string ext;
+				string filename = fileinfo.name;
+				if (strstr(filename.c_str(),".") != NULL) // 如果文件拥有后缀(即包含.)
+				{
+					ext = filename.substr(filename.find_last_of('.'));
+				}
+				else{                                     // 如果文件没有后缀(即不包含.)
+					ext = "";
+				}
+				
+				// 将后缀名与file_type作比较
+				if (strcmp(ext.c_str(),file_type.c_str()) == 0) // 必须使file_type的默认值永远不会等于fileinfo.name的后缀ext
 				{
 					files_vc.push_back(path_begin.assign(folder_path).append("\\").append(fileinfo.name));
 					++file_count;
 				}
-				if (file_type == "\\*") // 必须使file_type的默认值永远不会等于或包含于fileinfo.name
+				if (file_type == "\\*") // 必须使file_type的默认值永远不会等于fileinfo.name的后缀ext
 				{
 					files_vc.push_back(path_begin.assign(folder_path).append("\\").append(fileinfo.name));
 					++file_count;
@@ -124,15 +137,38 @@ void SrcCodeScanner::GetFilesFromFolder(string folder_path,vector<string>& files
 	}  
 }
 
-bool SrcCodeScanner::ReadFileData(string filename,string &data){
-	regex ftype_pattern("[^/*""<>|?]+?\\.[A-Za-z]+");
-	if (!regex_match(filename,ftype_pattern)) // 判断文件是否是C++头文件
+bool SrcCodeScanner::ReadFileData(string filename,vector<string> file_extensions,string &data){
+	// 从文件路径中提取文件后缀
+	char ext[_MAX_EXT];       
+	_splitpath(filename.c_str(),NULL,NULL,NULL,ext);
+
+	if (file_extensions.size() != 0)  // 若选择了扫描文件类型，则要对文件类型进行检查
 	{
-		string warning = filename + "文件类型错误，请务必选择C++头文件！";
-		//MessageBox(NULL,(CString)warning.c_str(),_T("提示信息"),MB_OK|MB_ICONINFORMATION); // 需传入窗口句柄
-		AfxMessageBox((CString)warning.c_str(),MB_OK|MB_ICONINFORMATION);
-		return false;
-	}
+		int flag = 0;
+		string all_extensions;
+		for (size_t i = 0;i < file_extensions.size();i++)
+		{
+			// 当前文件后缀与已选扫描文件类型匹配
+			if (strcmp(ext,file_extensions[i].c_str()) == 0)
+			{
+				flag += 1;
+			}
+			// 将所有的后缀名连接成一个字符串
+			if (file_extensions[i] == "")
+			{
+				all_extensions = all_extensions + "无后缀类型" + "; ";
+			}
+			else{
+				all_extensions = all_extensions + file_extensions[i] + "; ";
+			}
+		}
+		if (flag == 0) // 当前文件后缀不等于任何已选扫描文件类型
+		{
+			string warning = filename + "文件类型错误，请选择: " + all_extensions;
+			AfxMessageBox((CString)warning.c_str(),MB_OK|MB_ICONINFORMATION);
+			return false;
+		}
+	} 
 
 	ifstream in(filename,ios::binary|ios::in);
 	string data_tmp((istreambuf_iterator<char>(in)),istreambuf_iterator<char>());
@@ -141,7 +177,6 @@ bool SrcCodeScanner::ReadFileData(string filename,string &data){
 	// data为空的处理
 	if (data.empty()) // or data.length == 0
 	{
-		//MessageBox(NULL,_T("找不到指定的文件！"),_T("提示信息"),MB_OK|MB_ICONINFORMATION); // 需传入窗口句柄
 		AfxMessageBox(_T("找不到指定的文件！"),MB_OK|MB_ICONINFORMATION);
 		return false;
 	}
@@ -166,10 +201,10 @@ int SrcCodeScanner::RegexSearch(string data,regex pattern,vector<string> &vc,int
 	return 0; // 匹配成功返回0
 }
 
-bool SrcCodeScanner::GetClassBlock(string filename,vector<string> &class_block_vc){
+bool SrcCodeScanner::GetClassBlock(string filename,vector<string> file_extensions,vector<string> &class_block_vc){
 	// 读取文件内容
 	string filedata;
-	if (!ReadFileData(filename,filedata)) 
+	if (!ReadFileData(filename,file_extensions,filedata)) 
 	{
 		return false; // 文件读取失败
 	}
@@ -178,7 +213,6 @@ bool SrcCodeScanner::GetClassBlock(string filename,vector<string> &class_block_v
 	int flag = RegexSearch(filedata,class_block_pattern,class_block_vc,1);
 	if (flag != 0)
 	{
-		// 弹窗提示具体是哪个文件匹配失败
 		string warning = filename + "匹配提取类块失败，请查看其注释格式！";
 		AfxMessageBox((CString)warning.c_str(),MB_OK|MB_ICONINFORMATION);
 		return false;
@@ -193,8 +227,8 @@ bool SrcCodeScanner::GetWantedData(string class_block,int class_number,string &c
 	// 构建正则表达式:兼顾匹配精度与匹配容错率
     // 优化方案:提供接口供用户输入自定义的正则表达式
 	regex class_name_pattern("Class[ ]*([A-Za-z]+)[ ]*:[ ]*Begin\\.*"); 
-	regex class_desc_pattern("类说明[:]*[：]*[ ]*(.+)");          // 此处不能使用[:：]{1}
-	regex name_pattern("名称[:：]{1}[ ]*([A-Za-z~ ]+)");          // 此处不能使用:*：*
+	regex class_desc_pattern("类说明[:]*[：]*[ ]*(.+)");           // 此处不能使用[:：]{1}
+	regex name_pattern("名称[:：]{1}[ ]*([A-Za-z~ ]+)");           // 此处不能使用:*：*
 	regex form_pattern("(接口形式[:：]{1}[ ]*.+)");
 	regex desc_pattern("(功能描述[:：]{1}[ ]*.+)");
 	regex param_pattern("//[ ]*参数说明[:：][ ]*((.|\\r|\\n)+?)//[ ]*返回值"); 
@@ -256,15 +290,18 @@ bool SrcCodeScanner::CheckPathVector(vector<string> &path_vc,HWND hWnd,vector<st
 		MessageBox(hWnd,_T("请先选择文件/文件夹！"),_T("提示信息"),MB_OK | MB_ICONINFORMATION);
 		return false;
 	}
-	// 检查vc容器中的元素，若为文件夹，则将该文件夹下的所有头文件放入容器中
+	// 检查vc容器中的元素，若为文件夹，则将该文件夹下的所有文件(默认)放入容器中
+	// 往后递归迭代的过程中，只会将符合条件的文件放入容器，不存在将子文件夹放入容器的情况
 	for (size_t i = 0;i < path_vc.size();i++)
 	{
-		if (path_vc[i].find('.') == string::npos)
-		{
+		WIN32_FIND_DATAA FindFileData;
+		FindFirstFileA(path_vc[i].c_str(),&FindFileData);
+		// 若是文件夹
+		if(FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{   
 			long file_count = 0;
 			string folder_path = path_vc[i];
 			path_vc.erase(path_vc.begin() + i);   // 删除文件夹路径
-			//string file_type = ".h";            // 优化方案:在程序界面设置文件类型可选
 			if (file_extensions.size() == 0)
 			{   // 若没有选择扫描文件类型，则默认扫描该文件夹下的所有文件
 				GetFilesFromFolder(folder_path,path_vc,file_count);
@@ -273,17 +310,22 @@ bool SrcCodeScanner::CheckPathVector(vector<string> &path_vc,HWND hWnd,vector<st
 			{   // 若选择了扫描文件类型，则依序获取、扫描
 				for (size_t j = 0; j < file_extensions.size();j++)
 				{
-					string file_type = file_extensions[i];
+					string file_type = file_extensions[j];
 					GetFilesFromFolder(folder_path,path_vc,file_count,file_type);
 				}
 			}
-			
+
 			if (file_count == 0){ 
-				string warning = "文件夹" + folder_path + "为空！";
+				string warning = "文件夹" + folder_path + "中不包含已选扫描文件类型！";
 				MessageBox(hWnd,(CString)warning.c_str(),_T("提示信息"),MB_OK|MB_ICONINFORMATION);
 			}
 			i--; // 删除vector中的元素后，容器的size将减一，剩下的元素将整体前移一位
 		}
+		else // 若是文件
+		{
+			continue;
+		}
+		
 	}
 	if (path_vc.size() == 0) // 再次检查容器是否为空
 	{
@@ -292,7 +334,8 @@ bool SrcCodeScanner::CheckPathVector(vector<string> &path_vc,HWND hWnd,vector<st
 	return true;
 }
 
-void SrcCodeScanner::GenerateWordDoc(string filename,SccWordApi &wordOpt,CString header /* =  */,CString footer /* = */ ){
+void SrcCodeScanner::GenerateWordDoc(string filename,vector<string> file_extensions,string encoding,
+						SccWordApi &wordOpt,CString header /* =  */,CString footer /* = */ ){
 	/////////////////////获取生成Word文档所需的数据//////////////////////////
 	// 定义存放正则匹配结果的容器
 	vector<string> class_block_vc;
@@ -307,7 +350,7 @@ void SrcCodeScanner::GenerateWordDoc(string filename,SccWordApi &wordOpt,CString
 	string complete_class;
 
 	// 读取文件 -> 从文件中匹配提取类块
-	if (!GetClassBlock(filename,class_block_vc))
+	if (!GetClassBlock(filename,file_extensions,class_block_vc))
 	{
 		return; // 头文件中的类块匹配提取失败
 	}
@@ -319,12 +362,13 @@ void SrcCodeScanner::GenerateWordDoc(string filename,SccWordApi &wordOpt,CString
 	wordOpt.SetParagraphFormat(3);
 	if (header != "" && footer != "") // 若不为空，则传入页眉页脚
 	{
-		wordOpt.SetHeaderFooter(header,footer);
+		wordOpt.SetHeaderFooter(encoding.c_str(),header,footer); // 页眉页脚的编码要与正文一致
 	} 
 	else // 若为空，则使用默认参数
 	{
-		wordOpt.SetHeaderFooter();
+		wordOpt.SetHeaderFooter(encoding.c_str());               // 页眉页脚的编码要与正文一致
 	}
+	
 
 	// 将每个类的详细信息依次写入文件中
 	for (size_t i = 0; i < class_block_vc.size(); i++)
@@ -345,58 +389,100 @@ void SrcCodeScanner::GenerateWordDoc(string filename,SccWordApi &wordOpt,CString
 		{
 			continue;; // 若没有获取写入所需的数据，则不再执行生成Word文档的操作
 		}
-
-		// 写入类名及类说明
-		wordOpt.SetFont(_T("Times New Roman"),14,0,1); //  四号加粗
-		wordOpt.WriteText(complete_class.c_str()); 
-		wordOpt.NewLine();
-
-		// 循环写入每个接口函数的注释信息
-		for (size_t j = 0;j < name_vc.size();j++)
+		
+		
+		// 根据选择的编码将数据写入Word文档
+		if (encoding == "GBK")
 		{
-			// 接口函数名
-			wordOpt.SetFont(_T("Times New Roman"),12,0,1); // 小四加粗
-			wordOpt.WriteText(name_vc[j].c_str());
+			// 写入类名及类说明
+			wordOpt.SetFont(_T("Times New Roman"),14,0,1); //  四号加粗
+			wordOpt.WriteText(complete_class.c_str()); 
 			wordOpt.NewLine();
 
-			wordOpt.SetFont(_T("Times New Roman"),12,0,0); // 小四不加粗
-			wordOpt.CreateTable(5,1);
+			// 循环写入每个接口函数的注释信息
+			for (size_t j = 0;j < name_vc.size();j++)
+			{
+				// 接口函数名
+				wordOpt.SetFont(_T("Times New Roman"),12,0,1); // 小四加粗
+				wordOpt.WriteText(name_vc[j].c_str());
+				wordOpt.NewLine();
 
-			// 接口详细信息
-			wordOpt.WriteCellText(1,1,form_vc[j].c_str());
-			wordOpt.WriteCellText(2,1,desc_vc[j].c_str());
-			wordOpt.WriteCellText(3,1,param_vc[j].c_str());
-			wordOpt.WriteCellText(4,1,return_vc[j].c_str());
-			wordOpt.WriteCellText(5,1,example_vc[j].c_str());
+				wordOpt.SetFont(_T("Times New Roman"),12,0,0); // 小四不加粗
+				wordOpt.CreateTable(5,1);
 
-			// 设置单元格背景颜色
-			wordOpt.SetTableShading(1,1,16777215);
-			wordOpt.SetTableShading(2,1,12500670);
-			wordOpt.SetTableShading(3,1,16777215);
-			wordOpt.SetTableShading(4,1,12500670);
-			wordOpt.SetTableShading(5,1,16777215);
+				// 接口详细信息
+				wordOpt.WriteCellText(1,1,form_vc[j].c_str());
+				wordOpt.WriteCellText(2,1,desc_vc[j].c_str());
+				wordOpt.WriteCellText(3,1,param_vc[j].c_str());
+				wordOpt.WriteCellText(4,1,return_vc[j].c_str());
+				wordOpt.WriteCellText(5,1,example_vc[j].c_str());
 
-			wordOpt.EndLine();
+				// 设置单元格背景颜色
+				wordOpt.SetTableShading(1,1,16777215);
+				wordOpt.SetTableShading(2,1,12500670);
+				wordOpt.SetTableShading(3,1,16777215);
+				wordOpt.SetTableShading(4,1,12500670);
+				wordOpt.SetTableShading(5,1,16777215);
+
+				wordOpt.EndLine();
+			}
+		} 
+		else // UTF-8编码
+		{
+			// 写入类名及类说明
+			wordOpt.SetFont(_T("Times New Roman"),14,0,1); //  四号加粗
+			wordOpt.WriteText(GBKToUTF8(complete_class.c_str()).c_str()); 
+			wordOpt.NewLine();
+
+			// 循环写入每个接口函数的注释信息
+			for (size_t j = 0;j < name_vc.size();j++)
+			{
+				// 接口函数名
+				wordOpt.SetFont(_T("Times New Roman"),12,0,1); // 小四加粗
+				wordOpt.WriteText(GBKToUTF8(name_vc[j].c_str()).c_str());
+				wordOpt.NewLine();
+
+				wordOpt.SetFont(_T("Times New Roman"),12,0,0); // 小四不加粗
+				wordOpt.CreateTable(5,1);
+
+				// 接口详细信息
+				wordOpt.WriteCellText(1,1,GBKToUTF8(form_vc[j].c_str()).c_str());
+				wordOpt.WriteCellText(2,1,GBKToUTF8(desc_vc[j].c_str()).c_str());
+				wordOpt.WriteCellText(3,1,GBKToUTF8(param_vc[j].c_str()).c_str());
+				wordOpt.WriteCellText(4,1,GBKToUTF8(return_vc[j].c_str()).c_str());
+				wordOpt.WriteCellText(5,1,GBKToUTF8(example_vc[j].c_str()).c_str());
+
+				// 设置单元格背景颜色
+				wordOpt.SetTableShading(1,1,16777215);
+				wordOpt.SetTableShading(2,1,12500670);
+				wordOpt.SetTableShading(3,1,16777215);
+				wordOpt.SetTableShading(4,1,12500670);
+				wordOpt.SetTableShading(5,1,16777215);
+
+				wordOpt.EndLine();
+			}
 		}
+
 	}
-	
+
 	// 保存并关闭当前Word文档
-	regex filename_pattern("(.+?)\\.[A-Za-z]+");
-	vector<string> filename_vc;
-	string saved_doc_name;
-	if(RegexSearch(filename,filename_pattern,filename_vc,1) == 0){
-		saved_doc_name = filename_vc[0] + ".doc";
-	}
-	else{
-		AfxMessageBox(_T("无法获取文件名，Word文档保存失败！"),MB_OK|MB_ICONINFORMATION);
-		return;
-	}
+	char drive[_MAX_DRIVE];   // 磁盘
+	char dir[_MAX_DIR];       // 路径
+	char fname[_MAX_FNAME];   // 文件名
+	char ext[_MAX_EXT];       // 后缀名
+	_splitpath(filename.c_str(),drive,dir,fname,ext); 
+	string saved_doc_name = drive;
+	saved_doc_name += dir;
+	saved_doc_name += fname;
+	saved_doc_name += ".doc";
+	
 	wordOpt.SaveAs(saved_doc_name.c_str());           
 	wordOpt.Close(); // 关闭当前文档，但不关闭Word程序
 	return;
 }
 
-void SrcCodeScanner::GenerateMarkdownFile(string filename,string header /* =  */, string footer /* = */ ){
+void SrcCodeScanner::GenerateMarkdownFile(string filename,vector<string> file_extensions,string encoding,
+								string header /* =  */, string footer /* = */ ){
 	//////////////////获取生成Markdown文档所需的数据//////////////////////
 	// 定义存放正则匹配结果的容器
 	vector<string> class_block_vc;
@@ -411,7 +497,7 @@ void SrcCodeScanner::GenerateMarkdownFile(string filename,string header /* =  */
 	string complete_class;
 
 	// 读取文件 -> 从文件中匹配提取类块
-	if (!GetClassBlock(filename,class_block_vc))
+	if (!GetClassBlock(filename,file_extensions,class_block_vc))
 	{
 		return; // 头文件中的类块匹配提取失败
 	}
@@ -419,23 +505,31 @@ void SrcCodeScanner::GenerateMarkdownFile(string filename,string header /* =  */
 
 	////////////////处理数据，写入数据，生成Markdown文档///////////////////
 	// 创建并打开Markdown文件
-	regex filename_pattern("(.+?)\\.[A-Za-z]+");
-	vector<string> filename_vc;
-	string saved_md_name;
-	if(RegexSearch(filename,filename_pattern,filename_vc,1) == 0){
-		saved_md_name = filename_vc[0] + ".md";
-	}
-	else{
-		AfxMessageBox(_T("无法获取文件名，Markdown文件打开失败！"),MB_OK|MB_ICONINFORMATION);
-		return;
-	}
+	char drive[_MAX_DRIVE];   // 磁盘
+	char dir[_MAX_DIR];       // 路径
+	char fname[_MAX_FNAME];   // 文件名
+	char ext[_MAX_EXT];       // 后缀名
+	_splitpath(filename.c_str(),drive,dir,fname,ext); 
+	string saved_md_name = drive;
+	saved_md_name += dir;
+	saved_md_name += fname;
+	saved_md_name += ".md";
+
 	ofstream outfile(saved_md_name,ios::out);
 
 	// 定义页眉、页脚与表格样式
 	string header_text = "###### " + header;
-	string format_line = "| :-------- |";
 	string footer_text = "###### <div style=\"text-align:right\">" + footer +"</div>";
-	outfile << header_text << endl; // 写入页眉
+	string format_line = "| :-------- |";
+	// 若设置了UTF-8编码，则进行转化；
+	// 若设置了GBK编码则无需理会，因为程序本身即使用GBK编码；
+	if (encoding == "UTF-8")
+	{
+		header_text = GBKToUTF8(header_text.c_str());
+		footer_text = GBKToUTF8(footer_text.c_str());
+	} 
+	// 写入页眉
+	outfile << header_text << endl;
 
 	// 处理数据、写入数据
 	for (size_t i = 0; i < class_block_vc.size(); i++)
@@ -459,7 +553,6 @@ void SrcCodeScanner::GenerateMarkdownFile(string filename,string header /* =  */
 
 		// 对数据进行Markdown语法格式的处理
 		complete_class = "### **" + complete_class + "**";
-		outfile << complete_class << endl;
 		for (size_t i = 0;i < name_vc.size();i++)
 		{
 			// 处理接口名称
@@ -487,16 +580,35 @@ void SrcCodeScanner::GenerateMarkdownFile(string filename,string header /* =  */
 
 		}
 
-		// 按格式写入数据
-		for (size_t i = 0;i < name_vc.size();i++)
+		if (encoding == "GBK")
 		{
-			outfile << name_vc[i] << endl;
-			outfile << form_vc[i] << endl;
-			outfile << format_line << endl;
-			outfile << desc_vc[i] << endl;
-			outfile << param_vc[i] << endl;
-			outfile << return_vc[i] << endl;
-			outfile << example_vc[i] << endl;
+			// 按照GBK编码写入数据
+			outfile << complete_class << endl;
+			for (size_t i = 0;i < name_vc.size();i++)
+			{
+				outfile << name_vc[i] << endl;
+				outfile << form_vc[i] << endl;
+				outfile << format_line << endl;
+				outfile << desc_vc[i] << endl;
+				outfile << param_vc[i] << endl;
+				outfile << return_vc[i] << endl;
+				outfile << example_vc[i] << endl;
+			}
+		} 
+		else
+		{
+			// 按照UTF-8编码写入数据
+			outfile << GBKToUTF8(complete_class.c_str()) << endl;
+			for (size_t i = 0;i < name_vc.size();i++)
+			{
+				outfile << GBKToUTF8(name_vc[i].c_str()) << endl;
+				outfile << GBKToUTF8(form_vc[i].c_str()) << endl;
+				outfile << GBKToUTF8(format_line.c_str()) << endl;
+				outfile << GBKToUTF8(desc_vc[i].c_str()) << endl;
+				outfile << GBKToUTF8(param_vc[i].c_str()) << endl;
+				outfile << GBKToUTF8(return_vc[i].c_str()) << endl;
+				outfile << GBKToUTF8(example_vc[i].c_str()) << endl;
+			}
 		}
 
 	}

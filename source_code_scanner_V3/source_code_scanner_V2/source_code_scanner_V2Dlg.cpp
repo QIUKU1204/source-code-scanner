@@ -69,6 +69,7 @@ void SrcCodeScannerDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHECK_C, m_check_c);
 	DDX_Control(pDX, IDC_CHECK_CPP, m_check_cpp);
 	DDX_Control(pDX, IDC_CHECK_NONE, m_check_none);
+	DDX_Control(pDX, IDCANCEL, m_radio_encoding);
 }
 
 BEGIN_MESSAGE_MAP(SrcCodeScannerDlg, CDialogEx)
@@ -92,6 +93,8 @@ BEGIN_MESSAGE_MAP(SrcCodeScannerDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK_C, &SrcCodeScannerDlg::OnBnClickedCheckC)
 	ON_BN_CLICKED(IDC_CHECK_CPP, &SrcCodeScannerDlg::OnBnClickedCheckCpp)
 	ON_BN_CLICKED(IDC_CHECK_NONE, &SrcCodeScannerDlg::OnBnClickedCheckNone)
+	ON_BN_CLICKED(IDC_RADIO_UTF8, &SrcCodeScannerDlg::OnBnClickedRadioUtf8)
+	ON_BN_CLICKED(IDC_RADIO_GBK, &SrcCodeScannerDlg::OnBnClickedRadioGbk)
 END_MESSAGE_MAP()
 
 
@@ -178,10 +181,12 @@ BOOL SrcCodeScannerDlg::OnInitDialog() // 初始化对话框
 
 
 	// TODO: 在此添加额外的初始化代码
+	((CButton *)GetDlgItem(IDC_RADIO_GBK))->SetCheck(TRUE); // 初始默认选中GBK
 
 	SetTimer(1, 1000, NULL); // 设置定时器
 	
 	wordOpt.CreateApp(); // 在打开程序窗口的同时，启动Word程序
+
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -204,10 +209,13 @@ void SrcCodeScannerDlg::OnTimer(UINT_PTR nIDEvent)
 	CDialogEx::OnTimer(nIDEvent);
 }
 
+/////////////////////定义全局变量///////////////////////
 CString header_text = ""; // 页眉文本初始化为空字符串
 CString footer_text = ""; // 页脚文本初始化为空字符串
 vector<string> file_extensions;
+string encoding = "GBK";  // 生成文档默认编码为GBK
 vector<string> path_vc;   // 文件&文件夹路径变量设为全局
+////////////////////////////////////////////////////////
 void SrcCodeScannerDlg::OnBnClickedButtonWord()
 {
 	// TODO: 在此添加控件通知处理程序代码
@@ -220,7 +228,6 @@ void SrcCodeScannerDlg::OnBnClickedButtonWord()
 	{
 		return; // 若为空，则不再执行扫描操作
 	}
-	//AfxMessageBox((CString)to_string((long long)path_vc.size()).c_str());
 	
 	// 根据传入的头文件路径，在其目录下生成相应的Word文档
 	MessageBox(_T("扫描开始！"),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
@@ -228,11 +235,11 @@ void SrcCodeScannerDlg::OnBnClickedButtonWord()
 	{
 		if (header_text != "" && footer_text != "") // 若不为空，则传入页眉页脚
 		{
-			scanner.GenerateWordDoc(path_vc[i],wordOpt,header_text,footer_text);
+			scanner.GenerateWordDoc(path_vc[i],file_extensions,encoding,wordOpt,header_text,footer_text);
 		} 
 		else // 若为空，则使用默认参数
 		{
-			scanner.GenerateWordDoc(path_vc[i],wordOpt);
+			scanner.GenerateWordDoc(path_vc[i],file_extensions,encoding,wordOpt);
 		}
 	}
 	MessageBox(_T("扫描完成！"),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
@@ -258,11 +265,11 @@ void SrcCodeScannerDlg::OnBnClickedButtonMd()
 	{
 		if (header_text != "" && footer_text != "") // 若不为空，则传入页眉页脚
 		{
-			scanner.GenerateMarkdownFile(path_vc[i],W2A(header_text),W2A(footer_text));
+			scanner.GenerateMarkdownFile(path_vc[i],file_extensions,encoding,W2A(header_text),W2A(footer_text));
 		} 
 		else // 若为空，则使用默认参数
 		{
-			scanner.GenerateMarkdownFile(path_vc[i]);
+			scanner.GenerateMarkdownFile(path_vc[i],file_extensions,encoding);
 		}
 	}
 	MessageBox(_T("扫描完成！"),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
@@ -379,8 +386,6 @@ void SrcCodeScannerDlg::OnDropFiles(HDROP hDropInfo)
 void SrcCodeScannerDlg::OnBnClickedOk()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	HWND hWnd = AfxGetMainWnd()->m_hWnd; // 获取当前窗口的句柄
-	wordOpt.AppClose(hWnd); // 在关闭程序窗口的同时，关闭Word程序
 	CDialogEx::OnOK();
 }
 
@@ -388,7 +393,19 @@ void SrcCodeScannerDlg::OnBnClickedCancel()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	HWND hWnd = AfxGetMainWnd()->m_hWnd; // 获取当前窗口的句柄
-	wordOpt.AppClose(hWnd); // 在关闭程序窗口的同时，关闭Word程序
+	try
+	{
+		wordOpt.AppClose(hWnd); // 在关闭程序窗口的同时，关闭Word程序
+	}
+	catch (CMemoryException* e)
+	{
+		MessageBox(_T("程序正在关闭..."),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
+		CDialogEx::OnCancel();
+		exit(1);
+	}
+	
+	//wordOpt.AppClose(hWnd); // 在关闭程序窗口的同时，关闭Word程序
+	MessageBox(_T("程序正在关闭..."),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
 	CDialogEx::OnCancel();
 }
 
@@ -412,7 +429,6 @@ void SrcCodeScannerDlg::OnEnChangeEditHeader() // 向编辑框中每输入一个字符，Chan
 	// TODO:  在此添加控件通知处理程序代码
 	CString cstr_edit;
 	m_edit_header.GetWindowTextW(cstr_edit);
-	//USES_CONVERSION;
 	header_text = cstr_edit;
 }
 
@@ -426,7 +442,6 @@ void SrcCodeScannerDlg::OnEnUpdateEditFooter() // 向编辑框中每输入一个字符，Upda
 	// TODO:  在此添加控件通知处理程序代码
 	CString cstr_edit;
 	m_edit_footer.GetWindowTextW(cstr_edit);
-	//USES_CONVERSION;
 	footer_text = cstr_edit;
 }
 
@@ -528,6 +543,7 @@ void SrcCodeScannerDlg::OnBnClickedCheckCpp()
 void SrcCodeScannerDlg::OnBnClickedCheckNone()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	//UpdateData(TRUE);
 	int state = m_check_none.GetCheck();
 	if (state == 1) // 当前复选框被选中
 	{
@@ -542,4 +558,17 @@ void SrcCodeScannerDlg::OnBnClickedCheckNone()
 			}
 		}
 	}
+}
+
+void SrcCodeScannerDlg::OnBnClickedRadioUtf8()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	encoding = "UTF-8";
+}
+
+
+void SrcCodeScannerDlg::OnBnClickedRadioGbk()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	encoding = "GBK";
 }

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Word_Api.h"
+#include "src_code_scanner.h"
 
 
 _Application    m_app;           ///< 创建word
@@ -467,10 +468,22 @@ void SccWordApi::SetPageSetup(int LeftMargin /* = 20 */,int RightMargin /* = 20 
 	
 	page.ReleaseDispatch();
 }
-void SccWordApi::SetHeaderFooter(CString HeaderText /* =  */,CString FooterText /* = */ ){
+void SccWordApi::SetHeaderFooter(CString encoding,CString HeaderText /* =  */,CString FooterText /* = */ ){
 	m_win = m_doc.get_ActiveWindow();
 	m_pane = m_win.get_ActivePane();
 	m_view = m_pane.get_View();
+
+	SrcCodeScanner scanner;
+	// 若为UTF-8编码
+	if (encoding == "UTF-8")
+	{
+		USES_CONVERSION;
+		// CStringA <-> LPCSTR <-> const char*
+		HeaderText = scanner.GBKToUTF8(W2A(HeaderText)).c_str();
+		FooterText = scanner.GBKToUTF8(W2A(FooterText)).c_str();
+	} 
+
+	// 程序本身默认为GBK编码
 
 	// ********************设置页眉***********************
 	m_view.put_SeekView(9); // wdSeekCurrentPageHeader = 9
@@ -510,7 +523,7 @@ void SccWordApi::AppClose(HWND hWnd){
 		m_app.Quit(vOpt,vOpt,vOpt);
 
 		// 释放资源放在析构函数中
-		MessageBox(hWnd,_T("程序正在关闭..."),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
-		//AfxMessageBox(_T("Word程序成功关闭！"),MB_OK|MB_ICONINFORMATION);
+
+		//MessageBox(hWnd,_T("程序正在关闭..."),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
 	}
 }

@@ -57,4 +57,7 @@ public:
 	CButton m_check_c;
 	CButton m_check_cpp;
 	CButton m_check_none;
+	afx_msg void OnBnClickedRadioUtf8();
+	afx_msg void OnBnClickedRadioGbk();
+	CButton m_radio_encoding;
 };
