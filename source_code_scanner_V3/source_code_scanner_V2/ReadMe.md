@@ -23,9 +23,9 @@
   - m_edit_filepath.SetWindowTextW(info); 
   - SetDlgItemTextW(IDC_EDIT,info);
 
-- 关于编辑框的 EN_CHANGE 和 EN_UPDATE 控件事件的区别:
-  - EN_CHANGE 仅在编辑框显示的内容被刷新之后才响应；
-  - 向编辑框中每输入一个字符，EN_UPDATE 即将响应一次；
+- 关于编辑框的 EN_CHANGE 和 EN_UPDATE 控件事件:
+  - 向编辑框中每输入一个字符，EN_CHANGE 即响应一次；
+  - 向编辑框中每输入一个字符，EN_UPDATE 即响应一次；
 
 - vector容器的删除与清空操作:
   - vector.erase() : 删除元素，但不回收空间；删除后，vector.size减一，全部元素整体前移；

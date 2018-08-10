@@ -61,6 +61,14 @@ void SrcCodeScannerDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_EDIT_TOP, m_edit_filepath);
+	DDX_Control(pDX, IDC_EDIT_HEADER, m_edit_header);
+	DDX_Control(pDX, IDC_EDIT_FOOTER, m_edit_footer);
+	DDX_Control(pDX, IDC_CHECK_H, m_check_h);
+	DDX_Control(pDX, IDC_CHECK_HPP, m_check_hpp);
+	DDX_Control(pDX, IDC_CHECK_HXX, m_check_hxx);
+	DDX_Control(pDX, IDC_CHECK_C, m_check_c);
+	DDX_Control(pDX, IDC_CHECK_CPP, m_check_cpp);
+	DDX_Control(pDX, IDC_CHECK_NONE, m_check_none);
 }
 
 BEGIN_MESSAGE_MAP(SrcCodeScannerDlg, CDialogEx)
@@ -76,7 +84,14 @@ BEGIN_MESSAGE_MAP(SrcCodeScannerDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_SELECT_FILE, &SrcCodeScannerDlg::OnBnClickedButtonSelectFile)
 	ON_BN_CLICKED(IDC_BUTTON_SELECT_FOLDER, &SrcCodeScannerDlg::OnBnClickedButtonSelectFolder)
 	ON_WM_TIMER()
-	ON_STN_CLICKED(IDC_STATIC_PICTURE7, &SrcCodeScannerDlg::OnStnClickedStaticPicture7)
+	ON_EN_CHANGE(IDC_EDIT_HEADER, &SrcCodeScannerDlg::OnEnChangeEditHeader)
+	ON_EN_UPDATE(IDC_EDIT_FOOTER, &SrcCodeScannerDlg::OnEnUpdateEditFooter)
+	ON_BN_CLICKED(IDC_CHECK_H, &SrcCodeScannerDlg::OnBnClickedCheckH)
+	ON_BN_CLICKED(IDC_CHECK_HPP, &SrcCodeScannerDlg::OnBnClickedCheckHpp)
+	ON_BN_CLICKED(IDC_CHECK_HXX, &SrcCodeScannerDlg::OnBnClickedCheckHxx)
+	ON_BN_CLICKED(IDC_CHECK_C, &SrcCodeScannerDlg::OnBnClickedCheckC)
+	ON_BN_CLICKED(IDC_CHECK_CPP, &SrcCodeScannerDlg::OnBnClickedCheckCpp)
+	ON_BN_CLICKED(IDC_CHECK_NONE, &SrcCodeScannerDlg::OnBnClickedCheckNone)
 END_MESSAGE_MAP()
 
 
@@ -189,7 +204,10 @@ void SrcCodeScannerDlg::OnTimer(UINT_PTR nIDEvent)
 	CDialogEx::OnTimer(nIDEvent);
 }
 
-vector<string> path_vc; // 文件&文件夹路径变量设为全局
+CString header_text = ""; // 页眉文本初始化为空字符串
+CString footer_text = ""; // 页脚文本初始化为空字符串
+vector<string> file_extensions;
+vector<string> path_vc;   // 文件&文件夹路径变量设为全局
 void SrcCodeScannerDlg::OnBnClickedButtonWord()
 {
 	// TODO: 在此添加控件通知处理程序代码
@@ -198,7 +216,7 @@ void SrcCodeScannerDlg::OnBnClickedButtonWord()
 
 	HWND hWnd = AfxGetMainWnd()->m_hWnd; // 获取当前窗口的句柄
 
-	if (!scanner.CheckPathVector(path_vc,hWnd)) // 检查容器是否为空
+	if (!scanner.CheckPathVector(path_vc,hWnd,file_extensions)) // 检查容器是否为空
 	{
 		return; // 若为空，则不再执行扫描操作
 	}
@@ -208,7 +226,14 @@ void SrcCodeScannerDlg::OnBnClickedButtonWord()
 	MessageBox(_T("扫描开始！"),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
 	for (size_t i = 0;i < path_vc.size();i++)
 	{
-		scanner.GenerateWordDoc(path_vc[i],wordOpt);
+		if (header_text != "" && footer_text != "") // 若不为空，则传入页眉页脚
+		{
+			scanner.GenerateWordDoc(path_vc[i],wordOpt,header_text,footer_text);
+		} 
+		else // 若为空，则使用默认参数
+		{
+			scanner.GenerateWordDoc(path_vc[i],wordOpt);
+		}
 	}
 	MessageBox(_T("扫描完成！"),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
 }
@@ -221,16 +246,24 @@ void SrcCodeScannerDlg::OnBnClickedButtonMd()
 
 	HWND hWnd = AfxGetMainWnd()->m_hWnd; // 获取当前窗口的句柄
 
-	if (!scanner.CheckPathVector(path_vc,hWnd)) // 检查容器是否为空
+	if (!scanner.CheckPathVector(path_vc,hWnd,file_extensions)) // 检查容器是否为空
 	{
 		return; // 若为空，则不再执行扫描操作
 	}
 
 	MessageBox(_T("扫描开始！"),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
 	// 根据传入的头文件路径，在其目录下生成相应的Markdown文档
+	USES_CONVERSION;
 	for (size_t i = 0;i < path_vc.size();i++)
 	{
-		scanner.GenerateMarkdownFile(path_vc[i]);
+		if (header_text != "" && footer_text != "") // 若不为空，则传入页眉页脚
+		{
+			scanner.GenerateMarkdownFile(path_vc[i],W2A(header_text),W2A(footer_text));
+		} 
+		else // 若为空，则使用默认参数
+		{
+			scanner.GenerateMarkdownFile(path_vc[i]);
+		}
 	}
 	MessageBox(_T("扫描完成！"),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
 }
@@ -369,8 +402,21 @@ void SrcCodeScannerDlg::OnEnChangeEditTop()
 	// TODO:  在此添加控件通知处理程序代码
 }
 
-// 向编辑框中每输入一个字符，Update即响应一次
-/*void SrcCodeScannerDlg::OnEnUpdateEditTop()
+void SrcCodeScannerDlg::OnEnChangeEditHeader() // 向编辑框中每输入一个字符，Change即响应一次
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 CDialogEx::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+	CString cstr_edit;
+	m_edit_header.GetWindowTextW(cstr_edit);
+	//USES_CONVERSION;
+	header_text = cstr_edit;
+}
+
+void SrcCodeScannerDlg::OnEnUpdateEditFooter() // 向编辑框中每输入一个字符，Update即响应一次
 {
 	// TODO:  如果该控件是 RICHEDIT 控件，它将不
 	// 发送此通知，除非重写 CDialogEx::OnInitDialog()
@@ -378,16 +424,122 @@ void SrcCodeScannerDlg::OnEnChangeEditTop()
 	// 同时将 ENM_UPDATE 标志“或”运算到 lParam 掩码中。
 
 	// TODO:  在此添加控件通知处理程序代码
-
-	// 清空vector容器，防止受到上一次拖拽/选择的影响
-	filenames_vc.clear(); // 若无此语句，Word文档生成将陷入很长的循环
-
 	CString cstr_edit;
-	//UpdateData(TRUE);
-	m_edit_filepath.GetWindowTextW(cstr_edit);
-	USES_CONVERSION;
-	filenames_vc.push_back(W2A(cstr_edit));
-}*/
+	m_edit_footer.GetWindowTextW(cstr_edit);
+	//USES_CONVERSION;
+	footer_text = cstr_edit;
+}
 
+void SrcCodeScannerDlg::OnBnClickedCheckH()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int state = m_check_h.GetCheck();
+	if (state == 1) // 当前复选框被选中
+	{
+		file_extensions.push_back(".h");
+	}
+	else{           // 若没有被选中
+		for (size_t i = 0;i < file_extensions.size();i++)
+		{
+			if (file_extensions[i] == ".h")
+			{
+				file_extensions.erase(file_extensions.begin() + i);
+			}
+		}
+	}
+}
 
+void SrcCodeScannerDlg::OnBnClickedCheckHpp()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int state = m_check_hpp.GetCheck();
+	if (state == 1) // 当前复选框被选中
+	{
+		file_extensions.push_back(".hpp");
+	}
+	else{           // 若没有被选中
+		for (size_t i = 0;i < file_extensions.size();i++)
+		{
+			if (file_extensions[i] == ".hpp")
+			{
+				file_extensions.erase(file_extensions.begin() + i);
+			}
+		}
+	}
+}
 
+void SrcCodeScannerDlg::OnBnClickedCheckHxx()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int state = m_check_hxx.GetCheck();
+	if (state == 1) // 当前复选框被选中
+	{
+		file_extensions.push_back(".hxx");
+	}
+	else{           // 若没有被选中
+		for (size_t i = 0;i < file_extensions.size();i++)
+		{
+			if (file_extensions[i] == ".hxx")
+			{
+				file_extensions.erase(file_extensions.begin() + i);
+			}
+		}
+	}
+}
+
+void SrcCodeScannerDlg::OnBnClickedCheckC()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int state = m_check_c.GetCheck();
+	if (state == 1) // 当前复选框被选中
+	{
+		file_extensions.push_back(".c");
+	}
+	else{           // 若没有被选中
+		for (size_t i = 0;i < file_extensions.size();i++)
+		{
+			if (file_extensions[i] == ".c")
+			{
+				file_extensions.erase(file_extensions.begin() + i);
+			}
+		}
+	}
+}
+
+void SrcCodeScannerDlg::OnBnClickedCheckCpp()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int state = m_check_cpp.GetCheck();
+	if (state == 1) // 当前复选框被选中
+	{
+		file_extensions.push_back(".cpp");
+	}
+	else{           // 若没有被选中
+		for (size_t i = 0;i < file_extensions.size();i++)
+		{
+			if (file_extensions[i] == ".cpp")
+			{
+				file_extensions.erase(file_extensions.begin() + i);
+			}
+		}
+	}
+}
+
+void SrcCodeScannerDlg::OnBnClickedCheckNone()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int state = m_check_none.GetCheck();
+	if (state == 1) // 当前复选框被选中
+	{
+		file_extensions.push_back("");
+	}
+	else{           // 若没有被选中
+		for (size_t i = 0;i < file_extensions.size();i++)
+		{
+			if (file_extensions[i] == "")
+			{
+				file_extensions.erase(file_extensions.begin() + i);
+			}
+		}
+	}
+}

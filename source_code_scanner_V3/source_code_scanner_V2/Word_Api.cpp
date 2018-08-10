@@ -82,7 +82,7 @@ BOOL SccWordApi::CreateApp(){
 	{
 		//m_app.put_Visible(TRUE);
 		//MessageBox(hWnd,_T("Word程序正在启动..."),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
-		AfxMessageBox(_T("Word启动成功，按确认键继续"),MB_OK|MB_ICONINFORMATION);
+		//AfxMessageBox(_T("Word启动成功，按确认键继续"),MB_OK|MB_ICONINFORMATION);
 		return TRUE;
 	}
 }
@@ -510,7 +510,7 @@ void SccWordApi::AppClose(HWND hWnd){
 		m_app.Quit(vOpt,vOpt,vOpt);
 
 		// 释放资源放在析构函数中
-		MessageBox(hWnd,_T("Word程序正在关闭..."),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
+		MessageBox(hWnd,_T("程序正在关闭..."),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
 		//AfxMessageBox(_T("Word程序成功关闭！"),MB_OK|MB_ICONINFORMATION);
 	}
 }

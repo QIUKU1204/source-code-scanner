@@ -1,12 +1,13 @@
-﻿生成启动时间为 2018/8/8 13:51:22。
+﻿生成启动时间为 2018/8/9 17:20:46。
      1>项目“C:\Users\QIUKU1204\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\source_code_scanner_V2\source_code_scanner_V2.vcxproj”在节点 2 上(build 个目标)。
      1>InitializeBuildStatus:
          正在创建“Release\source_code_scanner_V2.unsuccessfulbuild”，因为已指定“AlwaysCreate”。
        ClCompile:
          所有输出均为最新。
-         所有输出均为最新。
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D _WINDOWS /D NDEBUG /D _UNICODE /D UNICODE /D _AFXDLL /D _AFXEXT /Gm- /EHsc /MDd /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Release\source_code_scanner_V2.pch" /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt src_code_scanner.cpp
+         src_code_scanner.cpp
        ResourceCompile:
-         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /D NDEBUG /D _UNICODE /D UNICODE /D _AFXDLL /l"0x0804" /IRelease\ /nologo /fo"Release\source_code_scanner_V2.res" source_code_scanner_V2.rc 
+         所有输出均为最新。
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\QIUKU1204\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\Release\source_code_scanner_V2.exe" /INCREMENTAL:NO /NOLOGO /MANIFEST /ManifestFile:"Release\source_code_scanner_V2.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\QIUKU1204\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\Release\source_code_scanner_V2.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /ENTRY:"wWinMainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\QIUKU1204\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\Release\source_code_scanner_V2.lib" /MACHINE:X86 Release\source_code_scanner_V2.res
          Release\source_code_scanner_V2.obj
@@ -27,4 +28,4 @@
 
 生成成功。
 
-已用时间 00:00:02.65
+已用时间 00:00:03.44
