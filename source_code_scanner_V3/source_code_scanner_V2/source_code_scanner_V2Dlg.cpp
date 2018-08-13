@@ -5,11 +5,12 @@
 #include "stdafx.h"
 #include "source_code_scanner_V2.h"
 #include "source_code_scanner_V2Dlg.h"
-#include "afxdialogex.h"
+//#include "afxdialogex.h"
 #include "Word_Api.h"
 #include "src_code_scanner.h"
 #include <string>
 #include <algorithm>
+#include <exception>
 using namespace std;
 
 #ifdef _DEBUG
@@ -55,6 +56,15 @@ SrcCodeScannerDlg::SrcCodeScannerDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(SrcCodeScannerDlg::IDD, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDI_ICON_COLORS);
+	// 编码初始化为GBK
+	encoding = "GBK"; 
+}
+
+// 显式析构函数
+SrcCodeScannerDlg::~SrcCodeScannerDlg(){
+	// 主动释放vector 占用的内存
+	vector<string>().swap(file_extensions);
+	vector<string>().swap(path_vc);
 }
 
 void SrcCodeScannerDlg::DoDataExchange(CDataExchange* pDX)
@@ -149,8 +159,8 @@ HCURSOR SrcCodeScannerDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-SccWordApi wordOpt; // Word操作对象设为全局
-BOOL SrcCodeScannerDlg::OnInitDialog() // 初始化对话框
+// 初始化对话框
+BOOL SrcCodeScannerDlg::OnInitDialog() 
 {
 	CDialogEx::OnInitDialog();
 
@@ -201,7 +211,7 @@ void SrcCodeScannerDlg::OnTimer(UINT_PTR nIDEvent)
 		CWnd * hWnd = FindWindow(NULL,_T("代码扫描器"));
 		if (hWnd)
 		{
-			Sleep(1500); // 先阻塞1S再关闭
+			Sleep(1000); // 先阻塞1S再关闭
 			hWnd->PostMessageW(WM_CLOSE,NULL,NULL);
 		}
 	}
@@ -209,24 +219,18 @@ void SrcCodeScannerDlg::OnTimer(UINT_PTR nIDEvent)
 	CDialogEx::OnTimer(nIDEvent);
 }
 
-/////////////////////定义全局变量///////////////////////
-CString header_text = ""; // 页眉文本初始化为空字符串
-CString footer_text = ""; // 页脚文本初始化为空字符串
-vector<string> file_extensions;
-string encoding = "GBK";  // 生成文档默认编码为GBK
-vector<string> path_vc;   // 文件&文件夹路径变量设为全局
+///////////定义全局变量(封装为Dlg类的数据成员)//////////
+
 ////////////////////////////////////////////////////////
 void SrcCodeScannerDlg::OnBnClickedButtonWord()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	
-	SrcCodeScanner scanner; // 定义一个扫描器对象，以调用封装好的函数
 
 	HWND hWnd = AfxGetMainWnd()->m_hWnd; // 获取当前窗口的句柄
 
-	if (!scanner.CheckPathVector(path_vc,hWnd,file_extensions)) // 检查容器是否为空
+	if (!scanner.CheckPathVector(path_vc,hWnd,file_extensions)) // 校验容器中的每一个路径元素
 	{
-		return; // 若为空，则不再执行扫描操作
+		return; // 若容器为空，则不再执行扫描操作
 	}
 	
 	// 根据传入的头文件路径，在其目录下生成相应的Word文档
@@ -249,13 +253,11 @@ void SrcCodeScannerDlg::OnBnClickedButtonMd()
 {
 	// TODO: 在此添加控件通知处理程序代码
 
-	SrcCodeScanner scanner; // 定义一个扫描器对象，以调用封装好的函数
-
 	HWND hWnd = AfxGetMainWnd()->m_hWnd; // 获取当前窗口的句柄
 
-	if (!scanner.CheckPathVector(path_vc,hWnd,file_extensions)) // 检查容器是否为空
+	if (!scanner.CheckPathVector(path_vc,hWnd,file_extensions)) // 校验容器中的每一个路径元素
 	{
-		return; // 若为空，则不再执行扫描操作
+		return; // 若容器为空，则不再执行扫描操作
 	}
 
 	MessageBox(_T("扫描开始！"),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
@@ -392,21 +394,26 @@ void SrcCodeScannerDlg::OnBnClickedOk()
 void SrcCodeScannerDlg::OnBnClickedCancel()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	HWND hWnd = AfxGetMainWnd()->m_hWnd; // 获取当前窗口的句柄
-	try
+
+	if (MessageBox(_T("确定要关闭程序吗？"),_T("提示信息"),MB_OK|MB_ICONINFORMATION|MB_YESNO) == IDNO)
 	{
-		wordOpt.AppClose(hWnd); // 在关闭程序窗口的同时，关闭Word程序
-	}
-	catch (CMemoryException* e)
-	{
+		return;
+	} 
+	else{   // == IDYES
+		try // 用于解决"RPC服务器不可用"的BUG
+		{
+			wordOpt.AppClose();  // 在关闭程序窗口的同时，关闭Word程序
+		}
+		catch (COleException* e) // 捕获到COleException 时，执行catch 代码块
+		{
+			e->Delete(); // 删除Exception 对象，释放其拥有的堆内存，防止内存泄露
+			MessageBox(_T("程序正在关闭..."),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
+			CDialogEx::OnCancel();
+		}
+		// 没有捕获到COleException 时
 		MessageBox(_T("程序正在关闭..."),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
 		CDialogEx::OnCancel();
-		exit(1);
 	}
-	
-	//wordOpt.AppClose(hWnd); // 在关闭程序窗口的同时，关闭Word程序
-	MessageBox(_T("程序正在关闭..."),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
-	CDialogEx::OnCancel();
 }
 
 void SrcCodeScannerDlg::OnEnChangeEditTop()

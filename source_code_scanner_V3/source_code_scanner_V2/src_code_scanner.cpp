@@ -7,17 +7,28 @@
 #include <streambuf>
 #include <string>
 #include <sstream>
-#include <queue>
 #include <vector>
 #include <Windows.h>
 #include <io.h>
 #include <stdlib.h>
+#include <direct.h>
+#include <time.h>
 using namespace std;
 
 
-SrcCodeScanner::SrcCodeScanner(){}
+SrcCodeScanner::SrcCodeScanner(){
+	// 获取当前工作路径   
+	_getcwd(working_path, MAX_PATH);
+	// 建立、打开日志文件
+	log_path = (string)working_path + "\\SrcCodeScanner.log";
+	// 在文件末尾追加记录
+	logfile.open(log_path,ios::out|ios::app);
+}
 
-SrcCodeScanner::~SrcCodeScanner(){}
+SrcCodeScanner::~SrcCodeScanner(){
+	// 在析构函数中关闭日志文件
+	logfile.close();
+}
 
 void SrcCodeScanner::trim(string &s)
 {
@@ -93,7 +104,8 @@ void SrcCodeScanner::GetFilesFromFolder(string folder_path,vector<string>& files
 	// 文件句柄  
 	long hFile = 0;  
 	// 文件信息  
-	struct _finddata_t fileinfo;  
+	struct _finddata_t fileinfo; 
+
 	string path_begin; 
 	// 开始查找
 	if((hFile = _findfirst(path_begin.assign(folder_path).append("\\*").c_str(),&fileinfo)) != -1)  
@@ -102,25 +114,25 @@ void SrcCodeScanner::GetFilesFromFolder(string folder_path,vector<string>& files
 			// 如果是目录,迭代之   
 			if((fileinfo.attrib & _A_SUBDIR))  
 			{  
-				if(strcmp(fileinfo.name,".") != 0 && strcmp(fileinfo.name,"..") != 0)
+				if(strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)
 					// 递归调用 GetFilesFromFolder
 					GetFilesFromFolder(path_begin.assign(folder_path).append("\\").append(fileinfo.name),files_vc,file_count,file_type);  
 			}  
 			else  // 如果是file_type类型的文件,则加入容器 
 			{  
 				// 从文件名中提取文件后缀(此方法不能用于从文件路径中提取后缀名)
-				string ext;
+				string extension;
 				string filename = fileinfo.name;
-				if (strstr(filename.c_str(),".") != NULL) // 如果文件拥有后缀(即包含.)
+				if (strstr(filename.c_str(), ".") != NULL) // 如果文件拥有后缀(即包含.)
 				{
-					ext = filename.substr(filename.find_last_of('.'));
+					extension = filename.substr(filename.find_last_of('.'));
 				}
 				else{                                     // 如果文件没有后缀(即不包含.)
-					ext = "";
+					extension = "";
 				}
 				
 				// 将后缀名与file_type作比较
-				if (strcmp(ext.c_str(),file_type.c_str()) == 0) // 必须使file_type的默认值永远不会等于fileinfo.name的后缀ext
+				if (strcmp(extension.c_str(), file_type.c_str()) == 0) // 必须使file_type的默认值永远不会等于fileinfo.name的后缀ext
 				{
 					files_vc.push_back(path_begin.assign(folder_path).append("\\").append(fileinfo.name));
 					++file_count;
@@ -138,46 +150,20 @@ void SrcCodeScanner::GetFilesFromFolder(string folder_path,vector<string>& files
 }
 
 bool SrcCodeScanner::ReadFileData(string filename,vector<string> file_extensions,string &data){
-	// 从文件路径中提取文件后缀
-	char ext[_MAX_EXT];       
-	_splitpath(filename.c_str(),NULL,NULL,NULL,ext);
-
-	if (file_extensions.size() != 0)  // 若选择了扫描文件类型，则要对文件类型进行检查
+	// 以二进制读的方式打开文件
+	ifstream infile(filename,ios::binary|ios::in);
+	if (infile == NULL)
 	{
-		int flag = 0;
-		string all_extensions;
-		for (size_t i = 0;i < file_extensions.size();i++)
-		{
-			// 当前文件后缀与已选扫描文件类型匹配
-			if (strcmp(ext,file_extensions[i].c_str()) == 0)
-			{
-				flag += 1;
-			}
-			// 将所有的后缀名连接成一个字符串
-			if (file_extensions[i] == "")
-			{
-				all_extensions = all_extensions + "无后缀类型" + "; ";
-			}
-			else{
-				all_extensions = all_extensions + file_extensions[i] + "; ";
-			}
-		}
-		if (flag == 0) // 当前文件后缀不等于任何已选扫描文件类型
-		{
-			string warning = filename + "文件类型错误，请选择: " + all_extensions;
-			AfxMessageBox((CString)warning.c_str(),MB_OK|MB_ICONINFORMATION);
-			return false;
-		}
-	} 
-
-	ifstream in(filename,ios::binary|ios::in);
-	string data_tmp((istreambuf_iterator<char>(in)),istreambuf_iterator<char>());
+		return false;
+	}
+	string data_tmp((istreambuf_iterator<char>(infile)),istreambuf_iterator<char>());
 	data = UTF8ToGBK(data_tmp.c_str()); // 重要的一步: UTF8 -> GBK ;
 
 	// data为空的处理
 	if (data.empty()) // or data.length == 0
 	{
-		AfxMessageBox(_T("找不到指定的文件！"),MB_OK|MB_ICONINFORMATION);
+		string warning = filename + " 找不到指定的文件！";
+		AfxMessageBox((CString)warning.c_str(),MB_OK|MB_ICONINFORMATION);
 		return false;
 	}
 	return true;
@@ -202,38 +188,50 @@ int SrcCodeScanner::RegexSearch(string data,regex pattern,vector<string> &vc,int
 }
 
 bool SrcCodeScanner::GetClassBlock(string filename,vector<string> file_extensions,vector<string> &class_block_vc){
+	
+	// 获取系统当前时间
+	GetLocalTime(&st);
+	sprintf_s(str_time,"%d-%d-%d  %d:%d:%d;",st.wYear,st.wMonth,st.wDay,st.wHour,st.wMinute,st.wSecond);
+
 	// 读取文件内容
 	string filedata;
 	if (!ReadFileData(filename,file_extensions,filedata)) 
 	{
+		string warning = filename + " 文件读取失败 ";
+		logfile << warning << str_time << endl;
 		return false; // 文件读取失败
 	}
 	// 从文件中匹配提取类块
-	regex class_block_pattern("(Class[ ]*[A-Za-z]+[ ]*:[ ]*Begin\\.(.|\\r|\\n)+?)End\\."); 
+	regex class_block_pattern("(//[ ]*Class[ ]*[A-Za-z]+[ ]*[:：]{1}[ ]*Begin\\.(.|\\r|\\n)+?)End\\.*"); 
 	int flag = RegexSearch(filedata,class_block_pattern,class_block_vc,1);
 	if (flag != 0)
 	{
-		string warning = filename + "匹配提取类块失败，请查看其注释格式！";
-		AfxMessageBox((CString)warning.c_str(),MB_OK|MB_ICONINFORMATION);
+		// 创建日志文件，将每次匹配的结果(成功或失败)记录在日志文件中
+		string warning = filename + " 匹配提取类块失败 ";
+		logfile << warning << str_time << endl;
 		return false;
 	}
+	else{
+		string warning = filename +  " 匹配提取类块成功 ";
+		logfile << warning << str_time << endl;
+	}
+
 	return true;
 }
 
 bool SrcCodeScanner::GetWantedData(string class_block,int class_number,string &complete_class,vector<string> &class_name_vc,vector<string> &class_desc_vc,vector<string> &name_vc, 
 						vector<string> &form_vc,vector<string> &desc_vc,vector<string> &param_vc,vector<string> &return_vc,vector<string> &example_vc){
 
-
 	// 构建正则表达式:兼顾匹配精度与匹配容错率
     // 优化方案:提供接口供用户输入自定义的正则表达式
-	regex class_name_pattern("Class[ ]*([A-Za-z]+)[ ]*:[ ]*Begin\\.*"); 
-	regex class_desc_pattern("类说明[:]*[：]*[ ]*(.+)");           // 此处不能使用[:：]{1}
-	regex name_pattern("名称[:：]{1}[ ]*([A-Za-z~ ]+)");           // 此处不能使用:*：*
-	regex form_pattern("(接口形式[:：]{1}[ ]*.+)");
-	regex desc_pattern("(功能描述[:：]{1}[ ]*.+)");
-	regex param_pattern("//[ ]*参数说明[:：][ ]*((.|\\r|\\n)+?)//[ ]*返回值"); 
-	regex return_pattern("//[ ]*返回值[:：][ ]*((.|\\r|\\n)+?)//[ ]*示例");    
-	regex example_pattern("//[ ]*示例[:：][ ]*((.|\\r|\\n)+?)//"); // 需要优化
+	regex class_name_pattern("//[ ]*Class[ ]*([A-Za-z]+)[ ]*[:：]{1}[ ]*Begin\\.*"); 
+	regex class_desc_pattern("//[ ]*类说明[:]*[：]*[ ]*(.+)");             // 此处不能使用[:：]{1}
+	regex name_pattern("//[ ]*名称[:：]{1}[ ]*([A-Za-z~ ]+)");             // 此处不能使用[:]*[：]*
+	regex form_pattern("//[ ]*(接口形式[:：]{1}[ ]*.+)");
+	regex desc_pattern("//[ ]*(功能描述[:：]{1}[ ]*.+)");
+	regex param_pattern("//[ ]*参数说明[:：]{1}[ ]*((.|\\r|\\n)+?)//[ ]*返回值"); 
+	regex return_pattern("//[ ]*返回值[:：]{1}[ ]*((.|\\r|\\n)+?)//[ ]*示例");    
+	regex example_pattern("//[ ]*示例[:：]{1}[ ]*((.|\\r|\\n)+?)//");      // 需要优化
 
 	// 执行匹配（成功返回0，失败返回1）
 	int flag = RegexSearch(class_block,class_name_pattern,class_name_vc,1);
@@ -266,18 +264,22 @@ bool SrcCodeScanner::GetWantedData(string class_block,int class_number,string &c
 		string str_tmp = param_vc[i]; // 两个不同的迭代器同时操作同一个vector会出错，因此赋值给临时string类型变量
 		str_tmp.erase(remove(str_tmp.begin(),str_tmp.end(),'/'),str_tmp.end());
 		str_tmp.erase(remove(str_tmp.begin(),str_tmp.end(),'-'),str_tmp.end());
-		trim(str_tmp);
+		trim(str_tmp);                // 清除字符串首尾的空格符、回车符、换行符及制表符
 		param_vc[i] = "参数: " + str_tmp;
 
 		// 处理接口返回值
+		ReplaceCharacters(return_vc[i],"-1","$$"); // 保护返回值中的-1，防止 -1 变为 1
 		str_tmp = return_vc[i];
 		str_tmp.erase(remove(str_tmp.begin(),str_tmp.end(),'/'),str_tmp.end());
-		str_tmp.erase(remove(str_tmp.begin(),str_tmp.end(),'-'),str_tmp.end()); // 将导致 -1 变为 1
+		str_tmp.erase(remove(str_tmp.begin(),str_tmp.end(),'-'),str_tmp.end()); 
 		trim(str_tmp);
 		return_vc[i] = "返回值: " + str_tmp;
+		ReplaceCharacters(return_vc[i],"$$","-1"); // 保护返回值中的-1，防止 -1 变为 1
 
 		// 处理接口示例代码
 		str_tmp = example_vc[i];
+		str_tmp.erase(remove(str_tmp.begin(),str_tmp.end(),'/'),str_tmp.end());
+		str_tmp.erase(remove(str_tmp.begin(),str_tmp.end(),'-'),str_tmp.end());
 		trim(str_tmp);
 		example_vc[i] = "示例代码: " + str_tmp;
 	}
@@ -285,11 +287,12 @@ bool SrcCodeScanner::GetWantedData(string class_block,int class_number,string &c
 }
 
 bool SrcCodeScanner::CheckPathVector(vector<string> &path_vc,HWND hWnd,vector<string> file_extensions){ // 检查存放文件/文件夹路径的vector容器
-	if (path_vc.size() == 0) // 检查容器是否为空，以确认是否选择了文件或文件夹
+	if (path_vc.size() == 0) // 检查容器是否为空
 	{
 		MessageBox(hWnd,_T("请先选择文件/文件夹！"),_T("提示信息"),MB_OK | MB_ICONINFORMATION);
 		return false;
 	}
+
 	// 检查vc容器中的元素，若为文件夹，则将该文件夹下的所有文件(默认)放入容器中
 	// 往后递归迭代的过程中，只会将符合条件的文件放入容器，不存在将子文件夹放入容器的情况
 	for (size_t i = 0;i < path_vc.size();i++)
@@ -316,38 +319,62 @@ bool SrcCodeScanner::CheckPathVector(vector<string> &path_vc,HWND hWnd,vector<st
 			}
 
 			if (file_count == 0){ 
-				string warning = "文件夹" + folder_path + "中不包含已选扫描文件类型！";
+				string warning = "文件夹" + folder_path + " 中不包含已选扫描文件类型！";
 				MessageBox(hWnd,(CString)warning.c_str(),_T("提示信息"),MB_OK|MB_ICONINFORMATION);
 			}
 			i--; // 删除vector中的元素后，容器的size将减一，剩下的元素将整体前移一位
 		}
 		else // 若是文件
-		{
-			continue;
+		{    
+			// 从文件路径中提取文件后缀     
+			_splitpath_s(path_vc[i].c_str(),drive,dir,fname,ext);
+
+		    // 若选择了扫描文件类型，则要对文件类型进行检查
+			if (file_extensions.size() != 0)  
+			{
+				int flag = 0;
+				string all_extensions;
+				for (size_t j = 0;j < file_extensions.size();j++)
+				{
+					// 当前文件后缀与已选扫描文件类型匹配
+					if (strcmp(ext,file_extensions[j].c_str()) == 0)
+					{
+						flag += 1;
+					}
+					// 将所有的后缀名连接成一个字符串
+					if (file_extensions[j] == "")
+					{
+						all_extensions = all_extensions + "无后缀类型" + "; ";
+					}
+					else{
+						all_extensions = all_extensions + file_extensions[j] + "; ";
+					}
+				}
+				if (flag == 0) // 当前文件后缀不等于任何已选扫描文件类型
+				{
+					string warning = path_vc[i] + " 文件类型错误，请选择: " + all_extensions;
+					MessageBox(hWnd,(CString)warning.c_str(),_T("提示信息"),MB_OK|MB_ICONINFORMATION);
+
+					// 删除不符合条件的文件路径
+					path_vc.erase(path_vc.begin() + i);
+					i--; // 删除vector中的元素后，容器的size将减一，剩下的元素将整体前移一位
+				}
+			} 
 		}
 		
 	}
+
 	if (path_vc.size() == 0) // 再次检查容器是否为空
 	{
 		return false;
 	}
+
 	return true;
 }
 
-void SrcCodeScanner::GenerateWordDoc(string filename,vector<string> file_extensions,string encoding,
-						SccWordApi &wordOpt,CString header /* =  */,CString footer /* = */ ){
+void SrcCodeScanner::GenerateWordDoc(string filename,vector<string> file_extensions,string encoding,SccWordApi &wordOpt,
+								CString header /* =  */,CString footer /* = */ ){
 	/////////////////////获取生成Word文档所需的数据//////////////////////////
-	// 定义存放正则匹配结果的容器
-	vector<string> class_block_vc;
-	vector<string> class_name_vc;
-	vector<string> class_desc_vc;
-	vector<string> name_vc;
-	vector<string> form_vc;
-	vector<string> desc_vc;
-	vector<string> param_vc;
-	vector<string> return_vc;
-	vector<string> example_vc;
-	string complete_class;
 
 	// 读取文件 -> 从文件中匹配提取类块
 	if (!GetClassBlock(filename,file_extensions,class_block_vc))
@@ -357,7 +384,17 @@ void SrcCodeScanner::GenerateWordDoc(string filename,vector<string> file_extensi
 	
 
 	////////////////////操作Word接口生成GBK编码的Word文档/////////////////////
-	wordOpt.CreateDocument();
+	try // 用于解决"RPC服务器不可用"的BUG
+	{
+		wordOpt.CreateDocument(); 
+	}
+	catch (COleException* e)
+	{
+		e->Delete();        // 删除Exception 对象，释放其拥有的堆内存，防止内存泄露
+		AfxMessageBox(_T("无法启用Word服务，程序需要重新启动。"),MB_OK|MB_ICONINFORMATION);
+		PostQuitMessage(0); // 使用exit 退出当前MFC程序将造成内存泄露
+	}
+	
 	wordOpt.SetPageSetup(54,54,72,72);
 	wordOpt.SetParagraphFormat(3);
 	if (header != "" && footer != "") // 若不为空，则传入页眉页脚
@@ -389,7 +426,6 @@ void SrcCodeScanner::GenerateWordDoc(string filename,vector<string> file_extensi
 		{
 			continue;; // 若没有获取写入所需的数据，则不再执行生成Word文档的操作
 		}
-		
 		
 		// 根据选择的编码将数据写入Word文档
 		if (encoding == "GBK")
@@ -466,36 +502,30 @@ void SrcCodeScanner::GenerateWordDoc(string filename,vector<string> file_extensi
 	}
 
 	// 保存并关闭当前Word文档
-	char drive[_MAX_DRIVE];   // 磁盘
-	char dir[_MAX_DIR];       // 路径
-	char fname[_MAX_FNAME];   // 文件名
-	char ext[_MAX_EXT];       // 后缀名
-	_splitpath(filename.c_str(),drive,dir,fname,ext); 
-	string saved_doc_name = drive;
-	saved_doc_name += dir;
-	saved_doc_name += fname;
-	saved_doc_name += ".doc";
-	
+	_splitpath_s(filename.c_str(),drive,dir,fname,ext); 
+	string saved_doc_name = (string)drive + (string)dir + (string)fname + ".doc";
+
 	wordOpt.SaveAs(saved_doc_name.c_str());           
 	wordOpt.Close(); // 关闭当前文档，但不关闭Word程序
+
+	// 主动释放vector 占用的内存
+	vector<string>().swap(class_block_vc);
+	vector<string>().swap(class_name_vc);
+	vector<string>().swap(class_desc_vc);
+	vector<string>().swap(name_vc);
+	vector<string>().swap(form_vc);
+	vector<string>().swap(desc_vc);
+	vector<string>().swap(param_vc);
+	vector<string>().swap(return_vc);
+	vector<string>().swap(example_vc);
+	
 	return;
 }
 
 void SrcCodeScanner::GenerateMarkdownFile(string filename,vector<string> file_extensions,string encoding,
 								string header /* =  */, string footer /* = */ ){
 	//////////////////获取生成Markdown文档所需的数据//////////////////////
-	// 定义存放正则匹配结果的容器
-	vector<string> class_block_vc;
-	vector<string> class_name_vc;
-	vector<string> class_desc_vc;
-	vector<string> name_vc;
-	vector<string> form_vc;
-	vector<string> desc_vc;
-	vector<string> param_vc;
-	vector<string> return_vc;
-	vector<string> example_vc;
-	string complete_class;
-
+	
 	// 读取文件 -> 从文件中匹配提取类块
 	if (!GetClassBlock(filename,file_extensions,class_block_vc))
 	{
@@ -505,15 +535,8 @@ void SrcCodeScanner::GenerateMarkdownFile(string filename,vector<string> file_ex
 
 	////////////////处理数据，写入数据，生成Markdown文档///////////////////
 	// 创建并打开Markdown文件
-	char drive[_MAX_DRIVE];   // 磁盘
-	char dir[_MAX_DIR];       // 路径
-	char fname[_MAX_FNAME];   // 文件名
-	char ext[_MAX_EXT];       // 后缀名
-	_splitpath(filename.c_str(),drive,dir,fname,ext); 
-	string saved_md_name = drive;
-	saved_md_name += dir;
-	saved_md_name += fname;
-	saved_md_name += ".md";
+	_splitpath_s(filename.c_str(),drive,dir,fname,ext); 
+	string saved_md_name = (string)drive + (string)dir + (string)fname + ".md";
 
 	ofstream outfile(saved_md_name,ios::out);
 
@@ -616,5 +639,17 @@ void SrcCodeScanner::GenerateMarkdownFile(string filename,vector<string> file_ex
 	// 写入页脚，关闭Markdown文件
 	outfile << footer_text << endl;
 	outfile.close();
+
+	// 主动释放vector 占有的内存
+	vector<string>().swap(class_block_vc);
+	vector<string>().swap(class_name_vc);
+	vector<string>().swap(class_desc_vc);
+	vector<string>().swap(name_vc);
+	vector<string>().swap(form_vc);
+	vector<string>().swap(desc_vc);
+	vector<string>().swap(param_vc);
+	vector<string>().swap(return_vc);
+	vector<string>().swap(example_vc);
+
 	return;
 }

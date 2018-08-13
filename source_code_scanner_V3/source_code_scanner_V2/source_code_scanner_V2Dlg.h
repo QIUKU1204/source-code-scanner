@@ -4,7 +4,8 @@
 
 #pragma once
 #include "afxwin.h"
-
+#include "Word_Api.h"
+#include "src_code_scanner.h"
 
 // SrcCodeScannerDlg 对话框
 class SrcCodeScannerDlg : public CDialogEx
@@ -12,6 +13,7 @@ class SrcCodeScannerDlg : public CDialogEx
 // 构造
 public:
 	SrcCodeScannerDlg(CWnd* pParent = NULL);	// 标准构造函数
+	~SrcCodeScannerDlg();
 
 // 对话框数据
 	enum { IDD = IDD_SOURCE_CODE_SCANNER_V2_DIALOG };
@@ -60,4 +62,13 @@ public:
 	afx_msg void OnBnClickedRadioUtf8();
 	afx_msg void OnBnClickedRadioGbk();
 	CButton m_radio_encoding;
+
+private:
+	SrcCodeScanner scanner;         // 扫描器对象
+	SccWordApi wordOpt;             // Word操作对象
+	CString header_text;            // 页眉文本
+	CString footer_text;            // 页脚文本
+	string encoding;                // 生成文档编码
+	vector<string> file_extensions; // 文件后缀/拓展名
+	vector<string> path_vc;         // 文件&文件夹路径
 };

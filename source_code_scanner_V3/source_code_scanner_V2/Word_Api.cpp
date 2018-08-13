@@ -82,8 +82,9 @@ BOOL SccWordApi::CreateApp(){
 	else
 	{
 		//m_app.put_Visible(TRUE);
-		//MessageBox(hWnd,_T("Word程序正在启动..."),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
+
 		//AfxMessageBox(_T("Word启动成功，按确认键继续"),MB_OK|MB_ICONINFORMATION);
+
 		return TRUE;
 	}
 }
@@ -96,7 +97,15 @@ BOOL SccWordApi::CreateDocument(){
 	} 
 	else
 	{
-		m_docs = m_app.get_Documents();
+		try // 用于解决"RPC服务器不可用"的BUG
+		{
+			m_docs = m_app.get_Documents();
+		}
+		catch (COleException* e)
+		{
+			throw e; // 将异常往上抛出，由GenerateWordDoc() 捕获并处理
+		}
+		
 		if (m_docs.m_lpDispatch == NULL)
 		{
 			AfxMessageBox(_T("Word文档集创建失败！"));
@@ -512,7 +521,7 @@ void SccWordApi::SetHeaderFooter(CString encoding,CString HeaderText /* =  */,CS
 
 
 
-void SccWordApi::AppClose(HWND hWnd){
+void SccWordApi::AppClose(){
 	COleVariant vOpt((long)DISP_E_PARAMNOTFOUND,VT_ERROR);
 	if (!m_app.m_lpDispatch)
 	{
@@ -520,7 +529,14 @@ void SccWordApi::AppClose(HWND hWnd){
 	} 
 	else
 	{
-		m_app.Quit(vOpt,vOpt,vOpt);
+		try // 用于解决"RPC服务器不可用"的BUG
+		{
+			m_app.Quit(vOpt,vOpt,vOpt);
+		}
+		catch (COleException* e)
+		{
+			throw e; // 将异常往上抛出，由OnBnClickedCancel() 捕获并处理
+		}
 
 		// 释放资源放在析构函数中
 
