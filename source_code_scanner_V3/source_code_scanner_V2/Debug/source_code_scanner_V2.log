@@ -1,11 +1,17 @@
-﻿生成启动时间为 2018/8/13 11:09:45。
+﻿生成启动时间为 2018/8/14 16:56:30。
      1>项目“C:\Users\QIUKU1204\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\source_code_scanner_V2\source_code_scanner_V2.vcxproj”在节点 2 上(build 个目标)。
      1>InitializeBuildStatus:
          正在创建“Debug\source_code_scanner_V2.unsuccessfulbuild”，因为已指定“AlwaysCreate”。
        ClCompile:
          所有输出均为最新。
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D _UNICODE /D UNICODE /D _AFXDLL /D _AFXEXT /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Debug\source_code_scanner_V2.pch" /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt src_code_scanner.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D _UNICODE /D UNICODE /D _AFXDLL /D _AFXEXT /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Debug\source_code_scanner_V2.pch" /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Word_Api.cpp source_code_scanner_V2.cpp source_code_scanner_V2Dlg.cpp src_code_scanner.cpp
          src_code_scanner.cpp
+         source_code_scanner_V2Dlg.cpp
+         source_code_scanner_V2.cpp
+         正在生成代码...
+         正在编译...
+         Word_Api.cpp
+         正在生成代码...
        ResourceCompile:
          所有输出均为最新。
        ManifestResourceCompile:
@@ -31,4 +37,4 @@
 
 生成成功。
 
-已用时间 00:00:01.83
+已用时间 00:00:03.49

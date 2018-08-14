@@ -13,7 +13,7 @@ class SrcCodeScannerDlg : public CDialogEx
 // 构造
 public:
 	SrcCodeScannerDlg(CWnd* pParent = NULL);	// 标准构造函数
-	~SrcCodeScannerDlg();
+	~SrcCodeScannerDlg();                       // 显式析构函数
 
 // 对话框数据
 	enum { IDD = IDD_SOURCE_CODE_SCANNER_V2_DIALOG };

@@ -347,7 +347,8 @@ void SrcCodeScannerDlg::OnBnClickedButtonSelectFolder()
 	{
 		::CoTaskMemFree(lpid_browse);
 	}
-	delete [] wchar_folderpath;
+	delete [] wchar_folderpath; // 释放堆内存后，指针wchar_folderpath 将指向垃圾内存，成为野指针
+	wchar_folderpath = NULL;    // 因为接下来不会继续使用该指针，所以是否是野指针都没有影响
 }
 
 void SrcCodeScannerDlg::OnDropFiles(HDROP hDropInfo)
@@ -356,7 +357,6 @@ void SrcCodeScannerDlg::OnDropFiles(HDROP hDropInfo)
 
 	// 清空vector容器，防止受到上一次拖拽/选择的影响
 	path_vc.clear();
-
 	// wchar_t <=> WCHAR <=> TCHAR
 	WCHAR * wchar_filepath = new WCHAR[MAX_PATH];
 	CString multi_filepath;
@@ -382,7 +382,8 @@ void SrcCodeScannerDlg::OnDropFiles(HDROP hDropInfo)
 	SetDlgItemTextW(IDC_EDIT_TOP,multi_filepath);
 
 	DragFinish(hDropInfo);
-	delete [] wchar_filepath;
+	delete [] wchar_filepath; // 释放堆内存后，指针wchar_filepath 将指向垃圾内存，成为野指针
+	wchar_filepath = NULL;    // 因为接下来不会继续使用该指针，所以是否是野指针都没有影响
 }
 
 void SrcCodeScannerDlg::OnBnClickedOk()

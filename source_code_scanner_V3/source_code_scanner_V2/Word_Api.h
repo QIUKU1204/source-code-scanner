@@ -31,7 +31,6 @@ public:
 	BOOL SaveAs(CString FileName,int SaveType = 0);
 
 
-
 	///////////////////////文件写操作//////////////////////////////////////////////
 	// 写入文本
 	void WriteText(CString Text);
@@ -45,14 +44,10 @@ public:
 	void PageBreak();
 
 
-
-
 	//////////////////////字体设置////////////////////////////////////////////////
 	void SetFont(BOOL Bold,BOOL Italic = FALSE,BOOL UnderLine = FALSE);
 	void SetFont(CString FontName,int FontSize = 9,long FontColor = 0,long Bold = 0);
 	void SetTableFont(int Row,int Column,CString FontName,int FontSize = 9,long FontColor = 0,long FontBackColor = 0);
-
-
 
 
 	//////////////////////表格操作////////////////////////////////////////////////
@@ -80,8 +75,6 @@ public:
 	void SetTableShading(int Row,int Column,long ShadingColor = 0);
 
 
-
-
 	/////////////////////////标签、超链接操作/////////////////////////////////////
 	/**
 	*	创建书签
@@ -104,9 +97,7 @@ public:
 	void RepositionHyperLink(CString hlinkName,CString bmarkName);    
 
 
-
-
-	/////////////////////////////图片操作///////////////////////////////////////
+	/////////////////////////////图片操作/////////////////////////////////////////
 	/**
 	*	插入图片
 	*	@param[in] fileName 图片路径
@@ -118,7 +109,6 @@ public:
 	*	@param[in] pBitmap  bitmap图片
 	**/
 	void InsertShapes(CBitmap *pBitmap);
-
 
 
 	///////////////////////设置文档属性////////////////////////////////////////////

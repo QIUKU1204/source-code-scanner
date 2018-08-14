@@ -84,7 +84,7 @@ void SrcCodeScanner::WCHARToString(WCHAR *wchar,string &str){
 	multiText = new char[len];
 	// 第二次调用将 宽字符字符串 转换为 多字节字符串
 	WideCharToMultiByte (CP_OEMCP,NULL,wideText,-1,multiText,len,NULL,FALSE);
-	str = multiText;// char*直接赋值给string
+	str = multiText; // char*直接赋值给string
 	delete []multiText;
 }
 
@@ -149,7 +149,7 @@ void SrcCodeScanner::GetFilesFromFolder(string folder_path,vector<string>& files
 	}  
 }
 
-bool SrcCodeScanner::ReadFileData(string filename,vector<string> file_extensions,string &data){
+bool SrcCodeScanner::ReadFileData(string filename,string &filedata){
 	// 以二进制读的方式打开文件
 	ifstream infile(filename,ios::binary|ios::in);
 	if (infile == NULL)
@@ -157,10 +157,10 @@ bool SrcCodeScanner::ReadFileData(string filename,vector<string> file_extensions
 		return false;
 	}
 	string data_tmp((istreambuf_iterator<char>(infile)),istreambuf_iterator<char>());
-	data = UTF8ToGBK(data_tmp.c_str()); // 重要的一步: UTF8 -> GBK ;
+	filedata = UTF8ToGBK(data_tmp.c_str()); // 重要的一步: UTF8 -> GBK ;
 
 	// data为空的处理
-	if (data.empty()) // or data.length == 0
+	if (filedata.empty()) // or data.length == 0
 	{
 		string warning = filename + " 找不到指定的文件！";
 		AfxMessageBox((CString)warning.c_str(),MB_OK|MB_ICONINFORMATION);
@@ -187,7 +187,7 @@ int SrcCodeScanner::RegexSearch(string data,regex pattern,vector<string> &vc,int
 	return 0; // 匹配成功返回0
 }
 
-bool SrcCodeScanner::GetClassBlock(string filename,vector<string> file_extensions,vector<string> &class_block_vc){
+bool SrcCodeScanner::GetClassBlock(string filename,vector<string> &class_block_vc){
 	
 	// 获取系统当前时间
 	GetLocalTime(&st);
@@ -195,7 +195,7 @@ bool SrcCodeScanner::GetClassBlock(string filename,vector<string> file_extension
 
 	// 读取文件内容
 	string filedata;
-	if (!ReadFileData(filename,file_extensions,filedata)) 
+	if (!ReadFileData(filename,filedata)) 
 	{
 		string warning = filename + " 文件读取失败 ";
 		logfile << warning << str_time << endl;
@@ -377,7 +377,7 @@ void SrcCodeScanner::GenerateWordDoc(string filename,vector<string> file_extensi
 	/////////////////////获取生成Word文档所需的数据//////////////////////////
 
 	// 读取文件 -> 从文件中匹配提取类块
-	if (!GetClassBlock(filename,file_extensions,class_block_vc))
+	if (!GetClassBlock(filename,class_block_vc))
 	{
 		return; // 头文件中的类块匹配提取失败
 	}
@@ -527,7 +527,7 @@ void SrcCodeScanner::GenerateMarkdownFile(string filename,vector<string> file_ex
 	//////////////////获取生成Markdown文档所需的数据//////////////////////
 	
 	// 读取文件 -> 从文件中匹配提取类块
-	if (!GetClassBlock(filename,file_extensions,class_block_vc))
+	if (!GetClassBlock(filename,class_block_vc))
 	{
 		return; // 头文件中的类块匹配提取失败
 	}

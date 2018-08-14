@@ -57,6 +57,7 @@
 - 两个BUG:
   - 在一次程序执行过程中，使用Word接口对象wordOpt多次启动、关闭Word程序，将导致无法再次启用Word服务；
   - solution: 一次程序执行过程，只在启动程序的同时创建Word服务，在关闭程序的同时关闭Word；
+
   - RPC服务器不可用: 在程序执行过程中，手动打开Word文档并关闭，将同时关闭后台运行的由本程序远程调用的Word服务，
     导致无法继续调用Word生成文档；
   - solution: ①使用try...catch 方式捕获并处理wordOpt.AppClose() 引发的COleException 异常； (√)
