@@ -55,8 +55,12 @@ string SrcCodeScanner::GBKToUTF8(const char* str_GBK){
 	memset(str, 0, len+1);
 	WideCharToMultiByte(CP_UTF8, 0, w_str, -1, str, len, NULL, NULL);
 	string str_Temp = str;
-	if(w_str) delete[] w_str;
-	if(str) delete[] str;
+
+	delete[] w_str;
+	w_str = NULL;
+	delete[] str;
+	str = NULL;
+
 	return str_Temp;
 }
 
@@ -70,8 +74,12 @@ string SrcCodeScanner::UTF8ToGBK(const char* str_UTF8){
 	memset(sz_GBK, 0, len+1);
 	WideCharToMultiByte(CP_ACP, 0, w_sz_GBK, -1, sz_GBK, len, NULL, NULL);
 	string str_Temp(sz_GBK);
-	if(w_sz_GBK) delete[] w_sz_GBK;
-	if(sz_GBK) delete[] sz_GBK;
+
+	delete[] w_sz_GBK;
+	w_sz_GBK = NULL;
+	delete[] sz_GBK;
+	sz_GBK = NULL;
+
 	return str_Temp;
 
 }
@@ -85,7 +93,9 @@ void SrcCodeScanner::WCHARToString(WCHAR *wchar,string &str){
 	// 第二次调用将 宽字符字符串 转换为 多字节字符串
 	WideCharToMultiByte (CP_OEMCP,NULL,wideText,-1,multiText,len,NULL,FALSE);
 	str = multiText; // char*直接赋值给string
+
 	delete []multiText;
+	multiText = NULL;
 }
 
 void SrcCodeScanner::ReplaceCharacters(string &str,string old_value /* =  */,string new_value /* = */ ){

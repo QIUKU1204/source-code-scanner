@@ -67,7 +67,7 @@ BOOL SrcCodeScannerApp::InitInstance()
 	// 例如修改为公司或组织名
 	SetRegistryKey(_T("应用程序向导生成的本地应用程序"));
 
-	// 初始化COM
+	// 初始化COM OLE库
 	if (!AfxOleInit())
 	{
 		AfxMessageBox(_T("无法初始化COM的动态链接库"));

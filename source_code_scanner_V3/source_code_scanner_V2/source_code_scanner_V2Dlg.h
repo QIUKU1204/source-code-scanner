@@ -33,6 +33,7 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
+	// 以afx_msg 关键字打头的消息处理函数
 	afx_msg void OnBnClickedButtonWord();
 	afx_msg void OnBnClickedButtonMd();
 	afx_msg void OnBnClickedOk();

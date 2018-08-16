@@ -225,37 +225,40 @@ void SrcCodeScannerDlg::OnTimer(UINT_PTR nIDEvent)
 void SrcCodeScannerDlg::OnBnClickedButtonWord()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	vector<string> path_vc_word = path_vc; // 每次点击执行扫描，只改变局部容器的数据，全局容器的数据不变
 
-	HWND hWnd = AfxGetMainWnd()->m_hWnd; // 获取当前窗口的句柄
+	HWND hWnd = AfxGetMainWnd()->m_hWnd;   // 获取当前窗口的句柄
 
-	if (!scanner.CheckPathVector(path_vc,hWnd,file_extensions)) // 校验容器中的每一个路径元素
+	if (!scanner.CheckPathVector(path_vc_word,hWnd,file_extensions)) // 校验容器中的每一个路径元素
 	{
 		return; // 若容器为空，则不再执行扫描操作
 	}
 	
 	// 根据传入的头文件路径，在其目录下生成相应的Word文档
 	MessageBox(_T("扫描开始！"),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
-	for (size_t i = 0;i < path_vc.size();i++)
+	for (size_t i = 0;i < path_vc_word.size();i++)
 	{
 		if (header_text != "" && footer_text != "") // 若不为空，则传入页眉页脚
 		{
-			scanner.GenerateWordDoc(path_vc[i],file_extensions,encoding,wordOpt,header_text,footer_text);
+			scanner.GenerateWordDoc(path_vc_word[i],file_extensions,encoding,wordOpt,header_text,footer_text);
 		} 
 		else // 若为空，则使用默认参数
 		{
-			scanner.GenerateWordDoc(path_vc[i],file_extensions,encoding,wordOpt);
+			scanner.GenerateWordDoc(path_vc_word[i],file_extensions,encoding,wordOpt);
 		}
 	}
 	MessageBox(_T("扫描完成！"),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
+	vector<string>().swap(path_vc_word);
 }
 
 void SrcCodeScannerDlg::OnBnClickedButtonMd()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	vector<string> path_vc_md = path_vc; // 每次点击执行扫描，只改变局部容器的数据，全局容器的数据不变
 
 	HWND hWnd = AfxGetMainWnd()->m_hWnd; // 获取当前窗口的句柄
 
-	if (!scanner.CheckPathVector(path_vc,hWnd,file_extensions)) // 校验容器中的每一个路径元素
+	if (!scanner.CheckPathVector(path_vc_md,hWnd,file_extensions)) // 校验容器中的每一个路径元素
 	{
 		return; // 若容器为空，则不再执行扫描操作
 	}
@@ -263,18 +266,19 @@ void SrcCodeScannerDlg::OnBnClickedButtonMd()
 	MessageBox(_T("扫描开始！"),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
 	// 根据传入的头文件路径，在其目录下生成相应的Markdown文档
 	USES_CONVERSION;
-	for (size_t i = 0;i < path_vc.size();i++)
+	for (size_t i = 0;i < path_vc_md.size();i++)
 	{
 		if (header_text != "" && footer_text != "") // 若不为空，则传入页眉页脚
 		{
-			scanner.GenerateMarkdownFile(path_vc[i],file_extensions,encoding,W2A(header_text),W2A(footer_text));
+			scanner.GenerateMarkdownFile(path_vc_md[i],file_extensions,encoding,W2A(header_text),W2A(footer_text));
 		} 
 		else // 若为空，则使用默认参数
 		{
-			scanner.GenerateMarkdownFile(path_vc[i],file_extensions,encoding);
+			scanner.GenerateMarkdownFile(path_vc_md[i],file_extensions,encoding);
 		}
 	}
 	MessageBox(_T("扫描完成！"),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
+	vector<string>().swap(path_vc_md);
 }
 
 void SrcCodeScannerDlg::OnBnClickedButtonSelectFile()
@@ -347,8 +351,8 @@ void SrcCodeScannerDlg::OnBnClickedButtonSelectFolder()
 	{
 		::CoTaskMemFree(lpid_browse);
 	}
-	delete [] wchar_folderpath; // 释放堆内存后，指针wchar_folderpath 将指向垃圾内存，成为野指针
-	wchar_folderpath = NULL;    // 因为接下来不会继续使用该指针，所以是否是野指针都没有影响
+	delete [] wchar_folderpath; 
+	wchar_folderpath = NULL;    
 }
 
 void SrcCodeScannerDlg::OnDropFiles(HDROP hDropInfo)
@@ -382,8 +386,8 @@ void SrcCodeScannerDlg::OnDropFiles(HDROP hDropInfo)
 	SetDlgItemTextW(IDC_EDIT_TOP,multi_filepath);
 
 	DragFinish(hDropInfo);
-	delete [] wchar_filepath; // 释放堆内存后，指针wchar_filepath 将指向垃圾内存，成为野指针
-	wchar_filepath = NULL;    // 因为接下来不会继续使用该指针，所以是否是野指针都没有影响
+	delete [] wchar_filepath; 
+	wchar_filepath = NULL;    
 }
 
 void SrcCodeScannerDlg::OnBnClickedOk()
