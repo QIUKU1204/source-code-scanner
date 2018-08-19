@@ -73,11 +73,9 @@ BOOL SrcCodeScannerApp::InitInstance()
 		AfxMessageBox(_T("无法初始化COM的动态链接库"));
 	}
 
-	SrcCodeScannerDlg dlg;
-	m_pMainWnd = &dlg;
-	//AfxMessageBox(_T("DoModal..."));
-	INT_PTR nResponse = dlg.DoModal();
-	//AfxMessageBox(_T("DoModal..."));
+	SrcCodeScannerDlg dlg;             // 创建对话框类实例
+	m_pMainWnd = &dlg;                 // 将dlg对话框设为主窗口
+	INT_PTR nResponse = dlg.DoModal(); // 使用DoModal函数弹出(模态)dlg对话框，并将返回值(退出时点击的按钮控件的ID)赋值给nResponse
 	if (nResponse == IDOK)
 	{
 		// TODO: 在此放置处理何时用
