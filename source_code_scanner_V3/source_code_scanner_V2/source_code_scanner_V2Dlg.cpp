@@ -54,6 +54,9 @@ END_MESSAGE_MAP()
 // 标准构造函数
 SrcCodeScannerDlg::SrcCodeScannerDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(SrcCodeScannerDlg::IDD, pParent)
+	, m_edit_header(_T(""))
+	, m_edit_footer(_T(""))
+	, m_edit_filepath(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDI_ICON_COLORS);
 	// 编码初始化为GBK
@@ -70,9 +73,10 @@ SrcCodeScannerDlg::~SrcCodeScannerDlg(){
 void SrcCodeScannerDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_EDIT_TOP, m_edit_filepath);
-	DDX_Control(pDX, IDC_EDIT_HEADER, m_edit_header);
-	DDX_Control(pDX, IDC_EDIT_FOOTER, m_edit_footer);
+	// 处理编辑框控件IDC_EDIT_TOP 与控件变量m_edit_filepath 之间的数据交换
+	DDX_Text(pDX, IDC_EDIT_TOP, m_edit_filepath);
+	DDX_Text(pDX, IDC_EDIT_HEADER, m_edit_header);
+	DDX_Text(pDX, IDC_EDIT_FOOTER, m_edit_footer);
 	DDX_Control(pDX, IDC_CHECK_H, m_check_h);
 	DDX_Control(pDX, IDC_CHECK_HPP, m_check_hpp);
 	DDX_Control(pDX, IDC_CHECK_HXX, m_check_hxx);
@@ -238,9 +242,9 @@ void SrcCodeScannerDlg::OnBnClickedButtonWord()
 	MessageBox(_T("扫描开始！"),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
 	for (size_t i = 0;i < path_vc_word.size();i++)
 	{
-		if (header_text != "" && footer_text != "") // 若不为空，则传入页眉页脚
+		if (m_edit_header != "" || m_edit_footer != "") // 若不为空，则传入页眉页脚
 		{
-			scanner.GenerateWordDoc(path_vc_word[i],file_extensions,encoding,wordOpt,header_text,footer_text);
+			scanner.GenerateWordDoc(path_vc_word[i],file_extensions,encoding,wordOpt,m_edit_header,m_edit_footer);
 		} 
 		else // 若为空，则使用默认参数
 		{
@@ -265,12 +269,12 @@ void SrcCodeScannerDlg::OnBnClickedButtonMd()
 
 	MessageBox(_T("扫描开始！"),_T("代码扫描器"),MB_OK|MB_ICONINFORMATION);
 	// 根据传入的头文件路径，在其目录下生成相应的Markdown文档
-	USES_CONVERSION;
 	for (size_t i = 0;i < path_vc_md.size();i++)
 	{
-		if (header_text != "" && footer_text != "") // 若不为空，则传入页眉页脚
+		if (m_edit_header != "" || m_edit_footer != "") // 若不为空，则传入页眉页脚
 		{
-			scanner.GenerateMarkdownFile(path_vc_md[i],file_extensions,encoding,W2A(header_text),W2A(footer_text));
+			USES_CONVERSION;
+			scanner.GenerateMarkdownFile(path_vc_md[i],file_extensions,encoding,W2A(m_edit_header),W2A(m_edit_footer));
 		} 
 		else // 若为空，则使用默认参数
 		{
@@ -292,24 +296,26 @@ void SrcCodeScannerDlg::OnBnClickedButtonSelectFile()
 	CFileDialog file_Dlg(TRUE, NULL, NULL, OFN_OVERWRITEPROMPT | OFN_ALLOWMULTISELECT, type_Filter, this);
 
 	CString cstr_filepath; 
-	CString multi_filepath;
 
 	// 显示打开文件对话框   
 	if (IDOK == file_Dlg.DoModal()) // 若选择了文件，才清空vector容器 
 	{   
 		// 清空vector容器，防止受到上一次拖拽/选择的影响
 		path_vc.clear();
+		m_edit_filepath = ""; // 同样
 
 		POSITION file_name_pos = file_Dlg.GetStartPosition();
 		while (file_name_pos != NULL) // 选择多个文件
 		{
 			cstr_filepath = file_Dlg.GetNextPathName(file_name_pos);
-			multi_filepath = multi_filepath + cstr_filepath + "; ";
-			// 将文件路径赋给一个全局变量，在OnBnClickedButtonWord()中使用
+			m_edit_filepath = m_edit_filepath + cstr_filepath + "; ";
+			// 将文件路径存放到路径容器path_vc 中
 			USES_CONVERSION;
 			path_vc.push_back(W2A(cstr_filepath)); // CStringW -> CSringA -> string
 		}
-		SetDlgItemTextW(IDC_EDIT_TOP, multi_filepath); // 在编辑框中显示多个文件的路径
+		// TRUE - 表示从控件传给变量; FALSE - 表示从变量传给控件
+		// 将变量m_edit_filepath 的值更新到关联的编辑框控件中
+		CDialogEx::UpdateData(FALSE);
 	}   
 }
 
@@ -361,9 +367,10 @@ void SrcCodeScannerDlg::OnDropFiles(HDROP hDropInfo)
 
 	// 清空vector容器，防止受到上一次拖拽/选择的影响
 	path_vc.clear();
+	m_edit_filepath = "";  // 同样
+
 	// wchar_t <=> WCHAR <=> TCHAR
 	WCHAR * wchar_filepath = new WCHAR[MAX_PATH];
-	CString multi_filepath;
 
 	// DragQueryFile(拖拽文件信息，查询文件的索引号，文件路径缓冲区，缓冲区大小)
 	// 当索引号参数为0xFFFFFFFF时，该函数的返回值为拖拽文件的数量
@@ -379,11 +386,16 @@ void SrcCodeScannerDlg::OnDropFiles(HDROP hDropInfo)
 		path_vc.push_back(W2A(wchar_filepath)); // WCHAR* -> char* -> string
 
 		// 获取多个文件的路径
-		multi_filepath = multi_filepath + wchar_filepath + "; ";
+		m_edit_filepath = m_edit_filepath + wchar_filepath + "; ";
 	}
-	// 使用Edit控件的成员变量m_edit_filepath，向编辑框发送文件路径信息
-	//m_edit_filepath.SetWindowTextW(multi_filepath);
-	SetDlgItemTextW(IDC_EDIT_TOP,multi_filepath);
+
+	// TRUE - 表示从控件传给变量; FALSE - 表示从变量传给控件
+	// 将变量m_edit_filepath 的值更新到关联的编辑框控件中
+	CDialogEx::UpdateData(FALSE);
+
+	// m_edit_filepath 为CEdit类型时可用SetWindowText函数
+	// m_edit_filepath.SetWindowTextW(multi_filepath);
+	// SetDlgItemTextW(IDC_EDIT_TOP,multi_filepath);
 
 	DragFinish(hDropInfo);
 	delete [] wchar_filepath; 
@@ -399,7 +411,6 @@ void SrcCodeScannerDlg::OnBnClickedOk()
 void SrcCodeScannerDlg::OnBnClickedCancel()
 {
 	// TODO: 在此添加控件通知处理程序代码
-
 	if (MessageBox(_T("确定要关闭程序吗？"),_T("提示信息"),MB_OK|MB_ICONINFORMATION|MB_YESNO) == IDNO)
 	{
 		return;
@@ -439,9 +450,11 @@ void SrcCodeScannerDlg::OnEnChangeEditHeader() // 向编辑框中每输入一个字符，Chan
 	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
 
 	// TODO:  在此添加控件通知处理程序代码
-	CString cstr_edit;
-	m_edit_header.GetWindowTextW(cstr_edit);
-	header_text = cstr_edit;
+	
+	// TRUE - 表示从控件传给变量; FALSE - 表示从变量传给控件
+	// 将编辑框控件中的值更新赋给关联的m_edit_header 变量
+	CDialogEx::UpdateData(TRUE);
+
 }
 
 void SrcCodeScannerDlg::OnEnUpdateEditFooter() // 向编辑框中每输入一个字符，Update即响应一次
@@ -452,9 +465,10 @@ void SrcCodeScannerDlg::OnEnUpdateEditFooter() // 向编辑框中每输入一个字符，Upda
 	// 同时将 ENM_UPDATE 标志“或”运算到 lParam 掩码中。
 
 	// TODO:  在此添加控件通知处理程序代码
-	CString cstr_edit;
-	m_edit_footer.GetWindowTextW(cstr_edit);
-	footer_text = cstr_edit;
+
+	// TRUE - 表示从控件传给变量; FALSE - 表示从变量传给控件
+	// 将编辑框控件中的值更新赋给关联的m_edit_footer 变量
+	CDialogEx::UpdateData(TRUE);
 }
 
 void SrcCodeScannerDlg::OnBnClickedCheckH()

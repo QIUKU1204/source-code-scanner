@@ -39,15 +39,15 @@ public:
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedCancel();
 	afx_msg void OnEnChangeEditTop();
-	CEdit m_edit_filepath;
+	CString m_edit_filepath;
 	afx_msg void OnBnClickedButtonSelectFile();
 	afx_msg void OnBnClickedButtonSelectFolder();
 	afx_msg void OnDropFiles(HDROP hDropInfo);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnEnChangeEditHeader();
-	CEdit m_edit_header;
+	CString m_edit_header;
 	afx_msg void OnEnUpdateEditFooter();
-	CEdit m_edit_footer;
+	CString m_edit_footer;
 	afx_msg void OnBnClickedCheckH();
 	afx_msg void OnBnClickedCheckHpp();
 	afx_msg void OnBnClickedCheckHxx();
@@ -67,9 +67,8 @@ public:
 private:
 	SrcCodeScanner scanner;         // 扫描器对象
 	SccWordApi wordOpt;             // Word操作对象
-	CString header_text;            // 页眉文本
-	CString footer_text;            // 页脚文本
 	string encoding;                // 生成文档编码
 	vector<string> file_extensions; // 文件后缀/拓展名
 	vector<string> path_vc;         // 文件&文件夹路径
+
 };

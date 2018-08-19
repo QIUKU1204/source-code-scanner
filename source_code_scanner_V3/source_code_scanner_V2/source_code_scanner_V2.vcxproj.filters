@@ -139,6 +139,9 @@
     <ClInclude Include="src_code_scanner.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="TestDlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source_code_scanner_V2.cpp">
@@ -154,6 +157,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src_code_scanner.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TestDlg.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
