@@ -374,7 +374,11 @@ void SrcCodeScannerDlg::OnDropFiles(HDROP hDropInfo)
 
 	// 清空vector容器，防止受到上一次拖拽/选择的影响
 	path_vc.clear();
+<<<<<<< HEAD
 	m_edit_filepath = ""; // 同样的处理
+=======
+	m_edit_filepath = ""; // 同样的处理
+>>>>>>> 74da165cea6e44f1113e0462405bf30cecccb183
 
 	// wchar_t <=> WCHAR <=> TCHAR
 	WCHAR * wchar_filepath = new WCHAR[MAX_PATH];

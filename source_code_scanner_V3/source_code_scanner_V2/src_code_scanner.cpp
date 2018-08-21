@@ -234,8 +234,8 @@ bool SrcCodeScanner::GetWantedData(string class_block,int class_number,string &c
 
 	// 构建正则表达式:兼顾匹配精度与匹配容错率
     // 优化方案:提供接口供用户输入自定义的正则表达式
-	regex class_name_pattern("//[ ]*Class[ ]*([A-Za-z]+)[ ]*[:： ]*Begin\\.*"); 
-	regex class_desc_pattern("//[ ]*类说明[:： ]*(.+)");             
+	regex class_name_pattern("//[ ]*Class[ ]*([A-Za-z]+)[:： ]*Begin\\.*"); 
+	regex class_desc_pattern("//[ ]*类[说明]*[名]*[:： ]*(.+)");             
 	regex name_pattern("//[ ]*名称[:： ]*([A-Za-z~ ]+)");             
 	regex form_pattern("//[ ]*(接口形式[:：]{1}[ ]*.+)");
 	regex desc_pattern("//[ ]*(功能描述[:：]{1}[ ]*.+)");
