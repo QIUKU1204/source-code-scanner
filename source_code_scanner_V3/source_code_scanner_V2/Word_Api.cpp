@@ -473,7 +473,7 @@ void SccWordApi::SetPageSetup(int LeftMargin /* = 20 */,int RightMargin /* = 20 
 	page.put_BottomMargin((float)BottomMargin);
 
 	// 设置一页的行数
-	page.put_LinesPage(44);
+	page.put_LinesPage(42); // “数值超过范围”
 	
 	page.ReleaseDispatch();
 }

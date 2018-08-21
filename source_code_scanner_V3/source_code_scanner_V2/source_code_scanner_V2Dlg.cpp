@@ -302,7 +302,7 @@ void SrcCodeScannerDlg::OnBnClickedButtonSelectFile()
 	{   
 		// 清空vector容器，防止受到上一次拖拽/选择的影响
 		path_vc.clear();
-		m_edit_filepath = ""; // 同样
+		m_edit_filepath = ""; // 同样的处理
 
 		POSITION file_name_pos = file_Dlg.GetStartPosition();
 		while (file_name_pos != NULL) // 选择多个文件
@@ -367,7 +367,7 @@ void SrcCodeScannerDlg::OnDropFiles(HDROP hDropInfo)
 
 	// 清空vector容器，防止受到上一次拖拽/选择的影响
 	path_vc.clear();
-	m_edit_filepath = "";  // 同样
+	m_edit_filepath = "";  // 同样的处理
 
 	// wchar_t <=> WCHAR <=> TCHAR
 	WCHAR * wchar_filepath = new WCHAR[MAX_PATH];
