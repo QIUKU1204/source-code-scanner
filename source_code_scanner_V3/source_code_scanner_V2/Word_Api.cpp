@@ -474,7 +474,7 @@ void SccWordApi::SetPageSetup(int LeftMargin /* = 20 */,int RightMargin /* = 20 
 
 	// 设置一页的行数
 	page.put_LinesPage(42); // “数值超过范围”
-	
+	page.put_CharsLine(40);	
 	page.ReleaseDispatch();
 }
 void SccWordApi::SetHeaderFooter(CString encoding,CString HeaderText /* =  */,CString FooterText /* = */ ){

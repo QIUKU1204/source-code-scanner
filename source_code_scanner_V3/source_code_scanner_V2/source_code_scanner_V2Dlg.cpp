@@ -109,6 +109,7 @@ BEGIN_MESSAGE_MAP(SrcCodeScannerDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK_NONE, &SrcCodeScannerDlg::OnBnClickedCheckNone)
 	ON_BN_CLICKED(IDC_RADIO_UTF8, &SrcCodeScannerDlg::OnBnClickedRadioUtf8)
 	ON_BN_CLICKED(IDC_RADIO_GBK, &SrcCodeScannerDlg::OnBnClickedRadioGbk)
+	ON_BN_CLICKED(IDC_BUTTON_INSTRUCTIONS, &SrcCodeScannerDlg::OnBnClickedButtonInstructions)
 END_MESSAGE_MAP()
 
 
@@ -285,6 +286,12 @@ void SrcCodeScannerDlg::OnBnClickedButtonMd()
 	vector<string>().swap(path_vc_md);
 }
 
+void SrcCodeScannerDlg::OnBnClickedButtonInstructions()
+{
+	// TODO: 在此添加控件通知处理程序代码
+
+}
+
 void SrcCodeScannerDlg::OnBnClickedButtonSelectFile()
 {
 	// TODO: 在此添加控件通知处理程序代码
@@ -368,7 +375,6 @@ void SrcCodeScannerDlg::OnDropFiles(HDROP hDropInfo)
 	// 清空vector容器，防止受到上一次拖拽/选择的影响
 	path_vc.clear();
 	m_edit_filepath = "";  // 同样的处理
-
 	// wchar_t <=> WCHAR <=> TCHAR
 	WCHAR * wchar_filepath = new WCHAR[MAX_PATH];
 
@@ -598,3 +604,4 @@ void SrcCodeScannerDlg::OnBnClickedRadioGbk()
 	// TODO: 在此添加控件通知处理程序代码
 	encoding = "GBK";
 }
+

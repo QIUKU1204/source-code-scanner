@@ -63,6 +63,7 @@ public:
 	afx_msg void OnBnClickedRadioUtf8();
 	afx_msg void OnBnClickedRadioGbk();
 	CButton m_radio_encoding;
+	afx_msg void OnBnClickedButtonInstructions();
 
 private:
 	SrcCodeScanner scanner;         // 扫描器对象
@@ -70,5 +71,4 @@ private:
 	string encoding;                // 生成文档编码
 	vector<string> file_extensions; // 文件后缀/拓展名
 	vector<string> path_vc;         // 文件&文件夹路径
-
 };
