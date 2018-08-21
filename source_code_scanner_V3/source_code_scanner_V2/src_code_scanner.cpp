@@ -241,7 +241,7 @@ bool SrcCodeScanner::GetWantedData(string class_block,int class_number,string &c
 	regex desc_pattern("//[ ]*(功能描述[:：]{1}[ ]*.+)");
 	regex param_pattern("//[ ]*参数说明[:： ]*((.|\\r|\\n)+?)//[ ]*返回值"); 
 	regex return_pattern("//[ ]*返回值[:： ]*((.|\\r|\\n)+?)//[ ]*示例");    
-	regex example_pattern("//[ ]*示例[:： ]*((.|\\r|\\n)+?)//");      // 需要优化
+	regex example_pattern("//[ ]*示例[:： ]*((.|\\r|\\n)+?)//"); // 需要优化
 
 	// 执行匹配（成功返回0，失败返回1）
 	int flag = RegexSearch(class_block,class_name_pattern,class_name_vc,1);
