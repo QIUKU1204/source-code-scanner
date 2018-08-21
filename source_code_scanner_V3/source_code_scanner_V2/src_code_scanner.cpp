@@ -212,7 +212,7 @@ bool SrcCodeScanner::GetClassBlock(string filename,vector<string> &class_block_v
 		return false; // 文件读取失败
 	}
 	// 从文件中匹配提取类块
-	regex class_block_pattern("(//[ ]*Class[ ]*[A-Za-z]+[:： ]*Begin\\.(.|\\r|\\n)+?)End\\.*"); // 此处不能使用[:：]{1}
+	regex class_block_pattern("(//[ ]*Class[ ]*[A-Za-z]+[:： ]*Begin\\.(.|\\r|\\n)+?)End\\.*"); 
 	int flag = RegexSearch(filedata,class_block_pattern,class_block_vc,1);
 	if (flag != 0)
 	{
@@ -237,8 +237,8 @@ bool SrcCodeScanner::GetWantedData(string class_block,int class_number,string &c
 	regex class_name_pattern("//[ ]*Class[ ]*([A-Za-z]+)[:： ]*Begin\\.*"); 
 	regex class_desc_pattern("//[ ]*类[说明]*[名]*[:： ]*(.+)");             
 	regex name_pattern("//[ ]*名称[:： ]*([A-Za-z~ ]+)");             
-	regex form_pattern("//[ ]*(接口形式[:：]{1}[ ]*.+)");
-	regex desc_pattern("//[ ]*(功能描述[:：]{1}[ ]*.+)");
+	regex form_pattern("//[ ]*(接口形式[:： ]*.+)");
+	regex desc_pattern("//[ ]*(功能描述[:： ]*.+)");
 	regex param_pattern("//[ ]*参数说明[:： ]*((.|\\r|\\n)+?)//[ ]*返回值"); 
 	regex return_pattern("//[ ]*返回值[:： ]*((.|\\r|\\n)+?)//[ ]*示例");    
 	regex example_pattern("//[ ]*示例[:： ]*((.|\\r|\\n)+?)//"); // 需要优化

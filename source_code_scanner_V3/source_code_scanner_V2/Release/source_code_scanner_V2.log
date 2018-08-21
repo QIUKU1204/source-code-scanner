@@ -1,6 +1,11 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 ﻿生成启动时间为 2018/8/21 9:36:23。
      1>项目“C:\git\source-code-scanner\source_code_scanner_V3\source_code_scanner_V2\source_code_scanner_V2.vcxproj”在节点 2 上(build 个目标)。
+=======
+﻿生成启动时间为 2018/8/21 9:11:23。
+     1>项目“D:\git\source-code-scanner\source_code_scanner_V3\source_code_scanner_V2\source_code_scanner_V2.vcxproj”在节点 2 上(build 个目标)。
+>>>>>>> 74da165cea6e44f1113e0462405bf30cecccb183
 =======
 ﻿生成启动时间为 2018/8/21 9:11:23。
      1>项目“D:\git\source-code-scanner\source_code_scanner_V3\source_code_scanner_V2\source_code_scanner_V2.vcxproj”在节点 2 上(build 个目标)。
@@ -10,7 +15,11 @@
        ClCompile:
          所有输出均为最新。
 <<<<<<< HEAD
+<<<<<<< HEAD
          C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D _WINDOWS /D NDEBUG /D _UNICODE /D UNICODE /D _AFXDLL /D _AFXEXT /Gm- /EHsc /MDd /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Release\source_code_scanner_V2.pch" /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Word_Api.cpp
+=======
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Program Files\PCL 1.8.0\3rdParty\Boost\include\boost-1_61" /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D _WINDOWS /D NDEBUG /D _SCL_SECURE_NO_WARNINGS /D _CRT_SECURE_NO_WARNINGS /D _UNICODE /D UNICODE /D _AFXDLL /D _AFXEXT /Gm- /EHsc /MDd /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Release\source_code_scanner_V2.pch" /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Word_Api.cpp src_code_scanner.cpp
+>>>>>>> 74da165cea6e44f1113e0462405bf30cecccb183
 =======
          C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Program Files\PCL 1.8.0\3rdParty\Boost\include\boost-1_61" /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D _WINDOWS /D NDEBUG /D _SCL_SECURE_NO_WARNINGS /D _CRT_SECURE_NO_WARNINGS /D _UNICODE /D UNICODE /D _AFXDLL /D _AFXEXT /Gm- /EHsc /MDd /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Release\source_code_scanner_V2.pch" /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Word_Api.cpp src_code_scanner.cpp
 >>>>>>> 74da165cea6e44f1113e0462405bf30cecccb183
@@ -20,7 +29,11 @@
          所有输出均为最新。
        Link:
 <<<<<<< HEAD
+<<<<<<< HEAD
          C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\git\source-code-scanner\source_code_scanner_V3\Release\source_code_scanner_V2.exe" /INCREMENTAL:NO /NOLOGO /MANIFEST /ManifestFile:"Release\source_code_scanner_V2.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\git\source-code-scanner\source_code_scanner_V3\Release\source_code_scanner_V2.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /ENTRY:"wWinMainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\git\source-code-scanner\source_code_scanner_V3\Release\source_code_scanner_V2.lib" /MACHINE:X86 Release\source_code_scanner_V2.res
+=======
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\git\source-code-scanner\source_code_scanner_V3\Release\source_code_scanner_V2.exe" /INCREMENTAL:NO /NOLOGO /MANIFEST /ManifestFile:"Release\source_code_scanner_V2.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"D:\git\source-code-scanner\source_code_scanner_V3\Release\source_code_scanner_V2.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /ENTRY:"wWinMainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\git\source-code-scanner\source_code_scanner_V3\Release\source_code_scanner_V2.lib" /MACHINE:X86 Release\source_code_scanner_V2.res
+>>>>>>> 74da165cea6e44f1113e0462405bf30cecccb183
 =======
          C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\git\source-code-scanner\source_code_scanner_V3\Release\source_code_scanner_V2.exe" /INCREMENTAL:NO /NOLOGO /MANIFEST /ManifestFile:"Release\source_code_scanner_V2.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"D:\git\source-code-scanner\source_code_scanner_V3\Release\source_code_scanner_V2.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /ENTRY:"wWinMainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\git\source-code-scanner\source_code_scanner_V3\Release\source_code_scanner_V2.lib" /MACHINE:X86 Release\source_code_scanner_V2.res
 >>>>>>> 74da165cea6e44f1113e0462405bf30cecccb183
@@ -29,6 +42,7 @@
          Release\src_code_scanner.obj
          Release\stdafx.obj
          Release\Word_Api.obj
+<<<<<<< HEAD
 <<<<<<< HEAD
             正在创建库 C:\git\source-code-scanner\source_code_scanner_V3\Release\source_code_scanner_V2.lib 和对象 C:\git\source-code-scanner\source_code_scanner_V3\Release\source_code_scanner_V2.exp
          正在生成代码
@@ -45,6 +59,8 @@
 
 已用时间 00:00:03.41
 =======
+=======
+>>>>>>> 74da165cea6e44f1113e0462405bf30cecccb183
             正在创建库 D:\git\source-code-scanner\source_code_scanner_V3\Release\source_code_scanner_V2.lib 和对象 D:\git\source-code-scanner\source_code_scanner_V3\Release\source_code_scanner_V2.exp
          正在生成代码
          已完成代码的生成
@@ -59,4 +75,7 @@
 生成成功。
 
 已用时间 00:00:12.79
+<<<<<<< HEAD
+>>>>>>> 74da165cea6e44f1113e0462405bf30cecccb183
+=======
 >>>>>>> 74da165cea6e44f1113e0462405bf30cecccb183

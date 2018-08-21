@@ -124,6 +124,7 @@ D:\我的文档\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\Deb
 D:\我的文档\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\Debug\source_code_scanner_V2.exp
 D:\我的文档\Documents\Visual Studio 2010\Projects\source_code_scanner_V3\Debug\source_code_scanner_V2.exp
 <<<<<<< HEAD
+<<<<<<< HEAD
 ^C:\git\source-code-scanner\source_code_scanner_V3\source_code_scanner_V2\source_code_scanner_V2.vcxproj
 C:\git\source-code-scanner\source_code_scanner_V3\Debug\source_code_scanner_V2.lib
 C:\git\source-code-scanner\source_code_scanner_V3\Debug\source_code_scanner_V2.lib
@@ -140,6 +141,8 @@ C:\git\source-code-scanner\source_code_scanner_V3\Debug\source_code_scanner_V2.l
 C:\git\source-code-scanner\source_code_scanner_V3\Debug\source_code_scanner_V2.exp
 C:\git\source-code-scanner\source_code_scanner_V3\Debug\source_code_scanner_V2.exp
 =======
+=======
+>>>>>>> 74da165cea6e44f1113e0462405bf30cecccb183
 ^D:\git\source-code-scanner\source_code_scanner_V3\source_code_scanner_V2\source_code_scanner_V2.vcxproj
 D:\git\source-code-scanner\source_code_scanner_V3\Debug\source_code_scanner_V2.lib
 D:\git\source-code-scanner\source_code_scanner_V3\Debug\source_code_scanner_V2.lib
@@ -170,4 +173,7 @@ D:\git\source-code-scanner\source_code_scanner_V3\Debug\source_code_scanner_V2.l
 D:\git\source-code-scanner\source_code_scanner_V3\Debug\source_code_scanner_V2.lib
 D:\git\source-code-scanner\source_code_scanner_V3\Debug\source_code_scanner_V2.exp
 D:\git\source-code-scanner\source_code_scanner_V3\Debug\source_code_scanner_V2.exp
+<<<<<<< HEAD
+>>>>>>> 74da165cea6e44f1113e0462405bf30cecccb183
+=======
 >>>>>>> 74da165cea6e44f1113e0462405bf30cecccb183
